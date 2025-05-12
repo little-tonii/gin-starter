@@ -25,9 +25,9 @@ func NewUserHandler(userService *service.UserService) *UserHandler {
 // @Tags 		User
 // @Param 		request body request.RegisterUserRequest true "Request Body"
 // @Success 	201 {object} response.RegisterUserResponse
-// @Failure		400 {object} godoc.ErrorsResponse
-// @Failure		409 {object} godoc.ErrorResponse
-// @Failure		500 {object} godoc.ErrorResponse
+// @Failure		400 {object} godoc.MessagesResponse
+// @Failure		409 {object} godoc.MessageResponse
+// @Failure		500 {object} godoc.MessageResponse
 // @Router		/user/register [post]
 func (handler *UserHandler) HandleRegisterUser() gin.HandlerFunc {
 	return func(context *gin.Context) {

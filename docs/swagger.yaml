@@ -1,4 +1,87 @@
+basePath: /
+definitions:
+  godoc.MessageResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  godoc.MessagesResponse:
+    properties:
+      message:
+        items:
+          type: string
+        type: array
+    type: object
+  request.RegisterUserRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      phone_number:
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - password
+    - phone_number
+    - username
+    type: object
+  response.RegisterUserResponse:
+    properties:
+      message:
+        type: string
+    type: object
+host: localhost:8080
 info:
   contact: {}
-paths: {}
+  description: Just for practice
+  title: Todo Golang Example
+  version: "1.0"
+paths:
+  /user/register:
+    post:
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.RegisterUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.RegisterUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/godoc.MessagesResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/godoc.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/godoc.MessageResponse'
+      summary: Đăng ký
+      tags:
+      - User
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+  OAuth2Password:
+    flow: password
+    scopes:
+      read: Grants read access
+      write: Grants write access
+    tokenUrl: http://localhost:15000/user/login
+    type: oauth2
 swagger: "2.0"
