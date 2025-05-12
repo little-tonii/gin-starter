@@ -18,14 +18,14 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// @title Todo Golang Example
+// @title Heath Care System
 // @version 1.0
-// @description Just for practice
+// @description BT thay Que
 // @host localhost:8080
 // @BasePath /
 
 // @securityDefinitions.oauth2.password OAuth2Password
-// @tokenUrl http://localhost:15000/user/login
+// @tokenUrl http://localhost:8080/user/login
 // @scope.read Grants read access
 // @scope.write Grants write access
 
