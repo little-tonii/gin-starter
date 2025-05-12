@@ -60,6 +60,8 @@ func BindingValidator[T any]() gin.HandlerFunc {
 						context.Error(errors.New(fmt.Sprintf("%s phải bắt đầu bằng '%s'", error.Field(), error.Param())))
 					case "endswith":
 						context.Error(errors.New(fmt.Sprintf("%s phải kết thúc bằng '%s'", error.Field(), error.Param())))
+					case "vn_phone":
+						context.Error(errors.New(fmt.Sprintf("%s không phải là số điện thoại hợp lệ", error.Value())))
 					default:
 						context.Error(errors.New("Lỗi không không xác định khi validation"))
 					}

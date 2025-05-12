@@ -5,6 +5,7 @@ import (
 	"health-care-system/internal/application/request"
 	"health-care-system/internal/application/service"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -38,6 +39,8 @@ func (handler *UserHandler) HandleRegisterUser() gin.HandlerFunc {
 			return
 		}
 		request, ok := requestRaw.(*request.RegisterUserRequest)
+		request.Email = strings.ToLower(request.Email)
+		request.Username = strings.ToLower(request.Username)
 		if !ok {
 			context.Error(errors.New("Không thể ép kiểu RegisterUserRequest"))
 			context.AbortWithStatus(http.StatusInternalServerError)

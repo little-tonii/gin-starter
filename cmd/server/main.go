@@ -6,6 +6,7 @@ import (
 	"health-care-system/internal/interface/router"
 	"health-care-system/internal/shared/constant"
 	"health-care-system/internal/shared/di"
+	"health-care-system/internal/shared/validate"
 	"io"
 	"log"
 	"os"
@@ -14,6 +15,8 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -54,6 +57,10 @@ func main() {
 	gin.DefaultWriter = io.MultiWriter(logFile, os.Stdout)
 
 	engine := gin.New()
+
+	if validator, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		validator.RegisterValidation("vn_phone", validate.ValidateVietnamesePhoneNumber())
+	}
 
 	engine.Use(gin.Logger())
 	engine.Use(gin.Recovery())
