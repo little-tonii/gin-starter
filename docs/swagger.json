@@ -1,8 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Just for practice",
-        "title": "Todo Golang Example",
+        "description": "BT thay Que",
+        "title": "Heath Care System",
         "contact": {},
         "version": "1.0"
     },
@@ -120,7 +120,7 @@
         "OAuth2Password": {
             "type": "oauth2",
             "flow": "password",
-            "tokenUrl": "http://localhost:15000/user/login",
+            "tokenUrl": "http://localhost:8080/user/login",
             "scopes": {
                 "read": "Grants read access",
                 "write": "Grants write access"

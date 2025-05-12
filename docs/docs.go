@@ -126,7 +126,7 @@ const docTemplate = `{
         "OAuth2Password": {
             "type": "oauth2",
             "flow": "password",
-            "tokenUrl": "http://localhost:15000/user/login",
+            "tokenUrl": "http://localhost:8080/user/login",
             "scopes": {
                 "read": "Grants read access",
                 "write": "Grants write access"
@@ -141,8 +141,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8080",
 	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "Todo Golang Example",
-	Description:      "Just for practice",
+	Title:            "Heath Care System",
+	Description:      "BT thay Que",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

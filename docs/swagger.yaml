@@ -37,8 +37,8 @@ definitions:
 host: localhost:8080
 info:
   contact: {}
-  description: Just for practice
-  title: Todo Golang Example
+  description: BT thay Que
+  title: Heath Care System
   version: "1.0"
 paths:
   /user/register:
@@ -82,6 +82,6 @@ securityDefinitions:
     scopes:
       read: Grants read access
       write: Grants write access
-    tokenUrl: http://localhost:15000/user/login
+    tokenUrl: http://localhost:8080/user/login
     type: oauth2
 swagger: "2.0"
