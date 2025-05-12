@@ -19,15 +19,9 @@ definitions:
       password:
         minLength: 6
         type: string
-      phone_number:
-        type: string
-      username:
-        type: string
     required:
     - email
     - password
-    - phone_number
-    - username
     type: object
   response.RegisterUserResponse:
     properties:
@@ -37,8 +31,8 @@ definitions:
 host: localhost:8080
 info:
   contact: {}
-  description: BT thay Que
-  title: Heath Care System
+  description: description
+  title: Title
   version: "1.0"
 paths:
   /user/register:

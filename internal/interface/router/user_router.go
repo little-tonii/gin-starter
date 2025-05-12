@@ -1,9 +1,9 @@
 package router
 
 import (
-	"health-care-system/internal/application/request"
-	"health-care-system/internal/interface/middleware"
-	"health-care-system/internal/shared/di"
+	"gin-starter/internal/application/request"
+	"gin-starter/internal/interface/middleware"
+	"gin-starter/internal/shared/di"
 
 	"github.com/gin-gonic/gin"
 )

@@ -3,8 +3,8 @@ package middleware
 import (
 	"errors"
 
-	"health-care-system/internal/infrastructure/utils"
-	"health-care-system/internal/shared/constant"
+	"gin-starter/internal/infrastructure/utils"
+	"gin-starter/internal/shared/constant"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -36,7 +36,7 @@ func Authentication() gin.HandlerFunc {
 			return
 		}
 
-		context.Set("claims", claims)
+		context.Set(constant.ContextKey.CLAIMS, claims)
 		context.Next()
 	}
 }

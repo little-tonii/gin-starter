@@ -1,8 +1,8 @@
 package repository_impl
 
 import (
-	"health-care-system/internal/domain/entity"
-	"health-care-system/internal/infrastructure/model"
+	"gin-starter/internal/domain/entity"
+	"gin-starter/internal/infrastructure/model"
 
 	"gorm.io/gorm"
 )
@@ -20,7 +20,6 @@ func NewUserRepositoryImpl(database *gorm.DB) *UserRepositoryImpl {
 func (repository *UserRepositoryImpl) FindById(id int64) (*entity.UserEntity, error) {
 	var userModel model.UserModel
 	result := repository.database.
-		Preload("Role").
 		Where("id = ?", id).
 		First(&userModel)
 	if result.Error != nil {
@@ -31,11 +30,8 @@ func (repository *UserRepositoryImpl) FindById(id int64) (*entity.UserEntity, er
 
 func (repository *UserRepositoryImpl) Save(userEntity *entity.UserEntity) error {
 	userModel := model.UserModel{
-		Username:    userEntity.Username,
-		Password:    userEntity.Password,
-		PhoneNumber: userEntity.PhoneNumber,
-		Email:       userEntity.Email,
-		RoleId:      userEntity.Role.Id,
+		Password: userEntity.Password,
+		Email:    userEntity.Email,
 	}
 	result := repository.database.Create(&userModel)
 	if result.Error != nil {
@@ -50,11 +46,7 @@ func (repository *UserRepositoryImpl) Update(userEntity *entity.UserEntity) erro
 		Model(&model.UserModel{}).
 		Where("id = ?", userEntity.Id).
 		Updates(map[string]any{
-			"username":     userEntity.Username,
-			"password":     userEntity.Password,
-			"email":        userEntity.Email,
-			"phone_number": userEntity.PhoneNumber,
-			"role_id":      userEntity.Role.Id,
+			"password": userEntity.Password,
 		})
 	if result.Error != nil {
 		return result.Error
@@ -65,20 +57,7 @@ func (repository *UserRepositoryImpl) Update(userEntity *entity.UserEntity) erro
 func (repository *UserRepositoryImpl) FindByEmail(email string) (*entity.UserEntity, error) {
 	var userModel model.UserModel
 	result := repository.database.
-		Preload("Role").
 		Where("email = ?", email).
-		First(&userModel)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return userModel.ToEntity(), nil
-}
-
-func (repository *UserRepositoryImpl) FindByUsername(username string) (*entity.UserEntity, error) {
-	var userModel model.UserModel
-	result := repository.database.
-		Preload("Role").
-		Where("username = ?", username).
 		First(&userModel)
 	if result.Error != nil {
 		return nil, result.Error

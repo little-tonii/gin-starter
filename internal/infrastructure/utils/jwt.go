@@ -11,18 +11,18 @@ type Claims struct {
 	UserId int64
 }
 
-func GenerateAccessToken(secretKey string, userId int64) (string, error) {
+func GenerateAccessToken(secretKey string, claims Claims) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id":  userId,
+		"id":  claims.UserId,
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 	})
 
 	return token.SignedString([]byte(secretKey))
 }
 
-func GenerateRefreshToken(secretKey string, userId int64) (string, error) {
+func GenerateRefreshToken(secretKey string, claims Claims) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id":  userId,
+		"id":  claims.UserId,
 		"exp": time.Now().Add(time.Hour * 24 * 7).Unix(),
 	})
 

@@ -3,6 +3,7 @@ package middleware
 import (
 	"errors"
 	"fmt"
+	"gin-starter/internal/shared/constant"
 	"net/http"
 	"reflect"
 
@@ -60,8 +61,6 @@ func BindingValidator[T any]() gin.HandlerFunc {
 						context.Error(errors.New(fmt.Sprintf("%s phải bắt đầu bằng '%s'", error.Field(), error.Param())))
 					case "endswith":
 						context.Error(errors.New(fmt.Sprintf("%s phải kết thúc bằng '%s'", error.Field(), error.Param())))
-					case "vn_phone":
-						context.Error(errors.New(fmt.Sprintf("%s không phải là số điện thoại hợp lệ", error.Value())))
 					default:
 						context.Error(errors.New("Lỗi không không xác định khi validation"))
 					}
@@ -73,7 +72,7 @@ func BindingValidator[T any]() gin.HandlerFunc {
 			context.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
-		context.Set("request_data", &requestData)
+		context.Set(constant.ContextKey.REQUEST_DATA, &requestData)
 		context.Next()
 	}
 }

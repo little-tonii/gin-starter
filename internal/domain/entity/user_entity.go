@@ -1,10 +1,7 @@
 package entity
 
 type UserEntity struct {
-	Id          int64
-	Username    string
-	Password    string
-	Email       string
-	PhoneNumber string
-	Role        *RoleEntity
+	Id       int64
+	Password string
+	Email    string
 }

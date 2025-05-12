@@ -2,8 +2,9 @@ package handler
 
 import (
 	"errors"
-	"health-care-system/internal/application/request"
-	"health-care-system/internal/application/service"
+	"gin-starter/internal/application/request"
+	"gin-starter/internal/application/service"
+	"gin-starter/internal/shared/constant"
 	"net/http"
 	"strings"
 
@@ -32,7 +33,7 @@ func NewUserHandler(userService *service.UserService) *UserHandler {
 // @Router		/user/register [post]
 func (handler *UserHandler) HandleRegisterUser() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		requestRaw, exists := context.Get("request_data")
+		requestRaw, exists := context.Get(constant.ContextKey.REQUEST_DATA)
 		if !exists {
 			context.Error(errors.New("Không có dữ liệu request"))
 			context.AbortWithStatus(http.StatusInternalServerError)
@@ -40,7 +41,6 @@ func (handler *UserHandler) HandleRegisterUser() gin.HandlerFunc {
 		}
 		request, ok := requestRaw.(*request.RegisterUserRequest)
 		request.Email = strings.ToLower(request.Email)
-		request.Username = strings.ToLower(request.Username)
 		if !ok {
 			context.Error(errors.New("Không thể ép kiểu RegisterUserRequest"))
 			context.AbortWithStatus(http.StatusInternalServerError)

@@ -1,8 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "BT thay Que",
-        "title": "Heath Care System",
+        "description": "description",
+        "title": "Title",
         "contact": {},
         "version": "1.0"
     },
@@ -82,9 +82,7 @@
             "type": "object",
             "required": [
                 "email",
-                "password",
-                "phone_number",
-                "username"
+                "password"
             ],
             "properties": {
                 "email": {
@@ -93,12 +91,6 @@
                 "password": {
                     "type": "string",
                     "minLength": 6
-                },
-                "phone_number": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
                 }
             }
         },

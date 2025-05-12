@@ -1,15 +1,11 @@
 package model
 
-import "health-care-system/internal/domain/entity"
+import "gin-starter/internal/domain/entity"
 
 type UserModel struct {
-	Id          int64      `gorm:"column:id;primaryKey;autoIncrement"`
-	Username    string     `gorm:"column:username;unique;not null"`
-	Password    string     `gorm:"column:password;not null"`
-	Email       string     `gorm:"column:email;unique;not null"`
-	PhoneNumber string     `gorm:"column:phone_number;not null"`
-	RoleId      int64      `gorm:"column:role_id;not null"`
-	Role        *RoleModel `gorm:"foreignKey:RoleId;references:Id"`
+	Id       int64  `gorm:"column:id;primaryKey;autoIncrement"`
+	Password string `gorm:"column:password;not null"`
+	Email    string `gorm:"column:email;unique;not null"`
 }
 
 func (UserModel) TableName() string {
@@ -18,11 +14,8 @@ func (UserModel) TableName() string {
 
 func (model *UserModel) ToEntity() *entity.UserEntity {
 	return &entity.UserEntity{
-		Id:          model.Id,
-		Username:    model.Username,
-		Password:    model.Password,
-		PhoneNumber: model.PhoneNumber,
-		Email:       model.Email,
-		Role:        model.Role.ToEntity(),
+		Id:       model.Id,
+		Password: model.Password,
+		Email:    model.Email,
 	}
 }

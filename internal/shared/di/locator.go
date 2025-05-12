@@ -1,10 +1,10 @@
 package di
 
 import (
-	"health-care-system/internal/application/service"
-	"health-care-system/internal/infrastructure/config"
-	"health-care-system/internal/infrastructure/repository_impl"
-	"health-care-system/internal/interface/handler"
+	"gin-starter/internal/application/service"
+	"gin-starter/internal/infrastructure/config"
+	"gin-starter/internal/infrastructure/repository_impl"
+	"gin-starter/internal/interface/handler"
 )
 
 type Locator struct {
@@ -15,9 +15,8 @@ func InitLocator() *Locator {
 	database := config.GetDatabase()
 
 	userRepository := repository_impl.NewUserRepositoryImpl(database)
-	roleRepository := repository_impl.NewRoleRepositoryImpl(database)
 
-	userService := service.NewUserService(userRepository, roleRepository)
+	userService := service.NewUserService(userRepository)
 
 	userHandler := handler.NewUserHandler(userService)
 

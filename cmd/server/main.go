@@ -1,29 +1,26 @@
 package main
 
 import (
-	"health-care-system/internal/infrastructure/config"
-	"health-care-system/internal/interface/middleware"
-	"health-care-system/internal/interface/router"
-	"health-care-system/internal/shared/constant"
-	"health-care-system/internal/shared/di"
-	"health-care-system/internal/shared/validate"
+	"gin-starter/internal/infrastructure/config"
+	"gin-starter/internal/interface/middleware"
+	"gin-starter/internal/interface/router"
+	"gin-starter/internal/shared/constant"
+	"gin-starter/internal/shared/di"
 	"io"
 	"log"
 	"os"
 
-	_ "health-care-system/docs"
+	_ "gin-starter/docs"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
-	"github.com/go-playground/validator/v10"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// @title Heath Care System
+// @title Title
 // @version 1.0
-// @description BT thay Que
+// @description description
 // @host localhost:8080
 // @BasePath /
 
@@ -36,6 +33,8 @@ import (
 // @in header
 // @name Authorization
 func main() {
+	constant.InitContextKey()
+
 	if errs := constant.LoadEnvironment(); errs != nil && len(errs) > 0 {
 		log.Fatalf("Không thể tải biến môi trường: %v", errs)
 	}
@@ -47,7 +46,7 @@ func main() {
 
 	locator := di.InitLocator()
 
-	logFile, error := os.OpenFile("health-care.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	logFile, error := os.OpenFile("server.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if error != nil {
 		log.Fatal(error)
 	}
@@ -57,10 +56,6 @@ func main() {
 	gin.DefaultWriter = io.MultiWriter(logFile, os.Stdout)
 
 	engine := gin.New()
-
-	if validator, ok := binding.Validator.Engine().(*validator.Validate); ok {
-		validator.RegisterValidation("vn_phone", validate.ValidateVietnamesePhoneNumber())
-	}
 
 	engine.Use(gin.Logger())
 	engine.Use(gin.Recovery())

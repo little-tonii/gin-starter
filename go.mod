@@ -1,4 +1,4 @@
-module health-care-system
+module gin-starter
 
 go 1.24.3
 
