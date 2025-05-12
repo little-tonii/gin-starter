@@ -17,6 +17,26 @@ var (
 	once     sync.Once
 )
 
+func seedRolesRawSQL(db *gorm.DB) error {
+	rolesToSeed := []string{
+		"patient",
+		"doctor",
+		"nurse",
+		"admin",
+		"pharmacist",
+		"lab_technician",
+		"insurance_provider",
+	}
+	for _, roleName := range rolesToSeed {
+		sql := fmt.Sprintf("INSERT INTO roles (name) VALUES ('%s') ON CONFLICT (name) DO NOTHING;", roleName)
+		result := db.Exec(sql)
+		if result.Error != nil {
+			return fmt.Errorf("Thất bại khi insert role '%s' với câu truy vấn thô: %w", roleName, result.Error)
+		}
+	}
+	return nil
+}
+
 func InitializeDatabase() error {
 	var error error
 	once.Do(func() {
@@ -52,6 +72,11 @@ func InitializeDatabase() error {
 		sqlDatabase.SetConnMaxLifetime(10 * time.Minute)
 
 		if err := connection.AutoMigrate(&model.RoleModel{}, &model.UserModel{}); err != nil {
+			error = err
+			return
+		}
+
+		if err := seedRolesRawSQL(connection); err != nil {
 			error = err
 			return
 		}
