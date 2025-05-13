@@ -6,7 +6,8 @@ import (
 	"gin-starter/internal/application/response"
 	"gin-starter/internal/domain/entity"
 	"gin-starter/internal/domain/repository"
-	"gin-starter/internal/infrastructure/utils"
+	"gin-starter/internal/shared/constant"
+	"gin-starter/internal/shared/utils"
 	"net/http"
 
 	"gorm.io/gorm"
@@ -56,4 +57,38 @@ func (service *UserService) RegisterUser(request *request.RegisterUserRequest) (
 		}
 	}
 	return &response.RegisterUserResponse{Message: "Đăng ký thành công"}, nil
+}
+
+func (service *UserService) LoginUser(request *request.LoginUserRequest) (*response.LoginUserResponse, *response.ErrorResponse) {
+	userEntity, err := service.userRepository.FindByEmail(request.Username)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, &response.ErrorResponse{
+				Message:    "Tài khoản hoặc mật khẩu không chính xác",
+				StatusCode: http.StatusInternalServerError,
+			}
+		} else {
+			return nil, &response.ErrorResponse{
+				Message:    err.Error(),
+				StatusCode: http.StatusInternalServerError,
+			}
+		}
+	}
+	if !utils.CheckPasswordHash(request.Password, userEntity.Password) {
+		return nil, &response.ErrorResponse{
+			Message:    "Tài khoản hoặc mật khẩu không chính xác",
+			StatusCode: http.StatusInternalServerError,
+		}
+	}
+	accessToken, err := utils.GenerateAccessToken(
+		constant.Environment.JWT_SECRET_KEY,
+		utils.Claims{UserId: userEntity.Id},
+	)
+	if err != nil {
+		return nil, &response.ErrorResponse{
+			Message:    err.Error(),
+			StatusCode: http.StatusInternalServerError,
+		}
+	}
+	return &response.LoginUserResponse{AccessToken: accessToken}, nil
 }

@@ -16,5 +16,10 @@ func InitUserRouter(engine *gin.Engine, locator *di.Locator) {
 			middleware.BindingValidator[request.RegisterUserRequest](),
 			locator.UserHandler.HandleRegisterUser(),
 		)
+		group.POST(
+			"/login",
+			middleware.BindingValidator[request.LoginUserRequest](),
+			locator.UserHandler.HandleLoginUser(),
+		)
 	}
 }

@@ -3,8 +3,8 @@ package middleware
 import (
 	"errors"
 
-	"gin-starter/internal/infrastructure/utils"
 	"gin-starter/internal/shared/constant"
+	"gin-starter/internal/shared/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

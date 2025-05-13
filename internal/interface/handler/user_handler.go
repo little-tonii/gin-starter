@@ -55,3 +55,37 @@ func (handler *UserHandler) HandleRegisterUser() gin.HandlerFunc {
 		context.JSON(http.StatusCreated, response)
 	}
 }
+
+// Login 		godoc
+// @Summary 	Đăng nhập
+// @Produce 	application/json
+// @Tags 		User
+// @Param 		request body request.LoginUserRequest true "Request Body"
+// @Success 	200 {object} response.LoginUserResponse
+// @Failure		400 {object} godoc.MessagesResponse
+// @Failure		401 {object} godoc.MessageResponse
+// @Failure		500 {object} godoc.MessageResponse
+// @Router		/user/login [post]
+func (handler *UserHandler) HandleLoginUser() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		requestRaw, exists := context.Get(constant.ContextKey.REQUEST_DATA)
+		if !exists {
+			context.Error(errors.New("Không có dữ liệu request"))
+			context.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		request, ok := requestRaw.(*request.LoginUserRequest)
+		if !ok {
+			context.Error(errors.New("Không thể ép kiểu LoginUserRequest"))
+			context.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		response, err := handler.userService.LoginUser(request)
+		if err != nil {
+			context.Error(errors.New(err.Message))
+			context.AbortWithStatus(err.StatusCode)
+			return
+		}
+		context.JSON(http.StatusOK, response)
+	}
+}
