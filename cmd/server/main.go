@@ -71,7 +71,7 @@ func main() {
 	engine.Use(middleware.ErrorHandler())
 	engine.NoRoute(middleware.NoRoute())
 
-	router.InitUserRouter(engine, locator)
+	router.InitUserRouter(engine, locator.UserHandler)
 
 	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 

@@ -2,24 +2,24 @@ package router
 
 import (
 	"gin-starter/internal/application/request"
+	"gin-starter/internal/interface/handler"
 	"gin-starter/internal/interface/middleware"
-	"gin-starter/internal/shared/di"
 
 	"github.com/gin-gonic/gin"
 )
 
-func InitUserRouter(engine *gin.Engine, locator *di.Locator) {
+func InitUserRouter(engine *gin.Engine, handler *handler.UserHandler) {
 	group := engine.Group("/user")
 	{
 		group.POST(
 			"/register",
 			middleware.BindingValidator[request.RegisterUserRequest](),
-			locator.UserHandler.HandleRegisterUser(),
+			handler.HandleRegisterUser(),
 		)
 		group.POST(
 			"/login",
 			middleware.BindingValidator[request.LoginUserRequest](),
-			locator.UserHandler.HandleLoginUser(),
+			handler.HandleLoginUser(),
 		)
 	}
 }

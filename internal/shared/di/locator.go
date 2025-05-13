@@ -2,12 +2,17 @@ package di
 
 import (
 	"gin-starter/internal/application/service"
+	"gin-starter/internal/domain/repository"
 	"gin-starter/internal/infrastructure/config"
 	"gin-starter/internal/infrastructure/repository_impl"
 	"gin-starter/internal/interface/handler"
 )
 
 type Locator struct {
+	UserRepository repository.UserRepository
+
+	UserService *service.UserService
+
 	UserHandler *handler.UserHandler
 }
 
@@ -21,6 +26,8 @@ func InitLocator() *Locator {
 	userHandler := handler.NewUserHandler(userService)
 
 	return &Locator{
-		UserHandler: userHandler,
+		UserRepository: userRepository,
+		UserService:    userService,
+		UserHandler:    userHandler,
 	}
 }
