@@ -47,7 +47,7 @@ func (service *UserService) RegisterUser(request *request.RegisterUserRequest) (
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
 			return nil, &response.ErrorResponse{
 				Message:    "Email đã được sử dụng",
-				StatusCode: http.StatusInternalServerError,
+				StatusCode: http.StatusConflict,
 			}
 		} else {
 			return nil, &response.ErrorResponse{
@@ -65,7 +65,7 @@ func (service *UserService) LoginUser(request *request.LoginUserRequest) (*respo
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, &response.ErrorResponse{
 				Message:    "Tài khoản hoặc mật khẩu không chính xác",
-				StatusCode: http.StatusInternalServerError,
+				StatusCode: http.StatusUnauthorized,
 			}
 		} else {
 			return nil, &response.ErrorResponse{
@@ -77,7 +77,7 @@ func (service *UserService) LoginUser(request *request.LoginUserRequest) (*respo
 	if !utils.CheckPasswordHash(request.Password, userEntity.Password) {
 		return nil, &response.ErrorResponse{
 			Message:    "Tài khoản hoặc mật khẩu không chính xác",
-			StatusCode: http.StatusInternalServerError,
+			StatusCode: http.StatusUnauthorized,
 		}
 	}
 	accessToken, err := utils.GenerateAccessToken(
