@@ -1,6 +1,7 @@
 package repository_impl
 
 import (
+	"context"
 	"gin-starter/internal/domain/entity"
 	"gin-starter/internal/infrastructure/model"
 
@@ -17,9 +18,10 @@ func NewUserRepositoryImpl(database *gorm.DB) *UserRepositoryImpl {
 	}
 }
 
-func (repository *UserRepositoryImpl) FindById(id int64) (*entity.UserEntity, error) {
+func (repository *UserRepositoryImpl) FindById(context context.Context, id int64) (*entity.UserEntity, error) {
 	var userModel model.UserModel
 	result := repository.database.
+		WithContext(context).
 		Where("id = ?", id).
 		First(&userModel)
 	if result.Error != nil {
@@ -28,12 +30,14 @@ func (repository *UserRepositoryImpl) FindById(id int64) (*entity.UserEntity, er
 	return userModel.ToEntity(), nil
 }
 
-func (repository *UserRepositoryImpl) Save(userEntity *entity.UserEntity) error {
+func (repository *UserRepositoryImpl) Save(context context.Context, userEntity *entity.UserEntity) error {
 	userModel := model.UserModel{
 		Password: userEntity.Password,
 		Email:    userEntity.Email,
 	}
-	result := repository.database.Create(&userModel)
+	result := repository.database.
+		WithContext(context).
+		Create(&userModel)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -41,8 +45,9 @@ func (repository *UserRepositoryImpl) Save(userEntity *entity.UserEntity) error 
 	return nil
 }
 
-func (repository *UserRepositoryImpl) Update(userEntity *entity.UserEntity) error {
+func (repository *UserRepositoryImpl) Update(context context.Context, userEntity *entity.UserEntity) error {
 	result := repository.database.
+		WithContext(context).
 		Model(&model.UserModel{}).
 		Where("id = ?", userEntity.Id).
 		Updates(map[string]any{
@@ -54,9 +59,10 @@ func (repository *UserRepositoryImpl) Update(userEntity *entity.UserEntity) erro
 	return nil
 }
 
-func (repository *UserRepositoryImpl) FindByEmail(email string) (*entity.UserEntity, error) {
+func (repository *UserRepositoryImpl) FindByEmail(context context.Context, email string) (*entity.UserEntity, error) {
 	var userModel model.UserModel
 	result := repository.database.
+		WithContext(context).
 		Where("email = ?", email).
 		First(&userModel)
 	if result.Error != nil {

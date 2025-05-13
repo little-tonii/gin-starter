@@ -46,7 +46,7 @@ func (handler *UserHandler) HandleRegisterUser() gin.HandlerFunc {
 			context.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		response, err := handler.userService.RegisterUser(request)
+		response, err := handler.userService.RegisterUser(context.Request.Context(), request)
 		if err != nil {
 			context.Error(errors.New(err.Message))
 			context.AbortWithStatus(err.StatusCode)
@@ -80,7 +80,7 @@ func (handler *UserHandler) HandleLoginUser() gin.HandlerFunc {
 			context.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		response, err := handler.userService.LoginUser(request)
+		response, err := handler.userService.LoginUser(context.Request.Context(), request)
 		if err != nil {
 			context.Error(errors.New(err.Message))
 			context.AbortWithStatus(err.StatusCode)

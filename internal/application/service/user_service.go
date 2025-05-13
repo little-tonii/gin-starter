@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"gin-starter/internal/application/request"
 	"gin-starter/internal/application/response"
@@ -23,8 +24,14 @@ func NewUserService(userRepository repository.UserRepository) *UserService {
 	}
 }
 
-func (service *UserService) RegisterUser(request *request.RegisterUserRequest) (*response.RegisterUserResponse, *response.ErrorResponse) {
-	existedUser, _ := service.userRepository.FindByEmail(request.Email)
+func (service *UserService) RegisterUser(context context.Context, request *request.RegisterUserRequest) (*response.RegisterUserResponse, *response.ErrorResponse) {
+	existedUser, err := service.userRepository.FindByEmail(context, request.Email)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, &response.ErrorResponse{
+			Message:    err.Error(),
+			StatusCode: http.StatusInternalServerError,
+		}
+	}
 	if existedUser != nil {
 		return nil, &response.ErrorResponse{
 			Message:    "Email đã được sử dụng",
@@ -42,7 +49,7 @@ func (service *UserService) RegisterUser(request *request.RegisterUserRequest) (
 		Email:    request.Email,
 		Password: hashedPassword,
 	}
-	err = service.userRepository.Save(userEntity)
+	err = service.userRepository.Save(context, userEntity)
 	if err != nil {
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
 			return nil, &response.ErrorResponse{
@@ -59,8 +66,8 @@ func (service *UserService) RegisterUser(request *request.RegisterUserRequest) (
 	return &response.RegisterUserResponse{Message: "Đăng ký thành công"}, nil
 }
 
-func (service *UserService) LoginUser(request *request.LoginUserRequest) (*response.LoginUserResponse, *response.ErrorResponse) {
-	userEntity, err := service.userRepository.FindByEmail(request.Username)
+func (service *UserService) LoginUser(context context.Context, request *request.LoginUserRequest) (*response.LoginUserResponse, *response.ErrorResponse) {
+	userEntity, err := service.userRepository.FindByEmail(context, request.Username)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, &response.ErrorResponse{
