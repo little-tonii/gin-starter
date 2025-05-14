@@ -2,22 +2,29 @@ package handler
 
 import (
 	"errors"
+	"fmt"
 	"gin-starter/internal/application/request"
+	"gin-starter/internal/application/response"
 	"gin-starter/internal/application/service"
 	"gin-starter/internal/shared/constant"
+	"gin-starter/internal/shared/utils"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 )
 
 type UserHandler struct {
 	userService *service.UserService
+	redisClient *redis.Client
 }
 
-func NewUserHandler(userService *service.UserService) *UserHandler {
+func NewUserHandler(redisClient *redis.Client, userService *service.UserService) *UserHandler {
 	return &UserHandler{
 		userService: userService,
+		redisClient: redisClient,
 	}
 }
 
@@ -84,6 +91,54 @@ func (handler *UserHandler) HandleLoginUser() gin.HandlerFunc {
 		if err != nil {
 			context.Error(errors.New(err.Message))
 			context.AbortWithStatus(err.StatusCode)
+			return
+		}
+		context.JSON(http.StatusOK, response)
+	}
+}
+
+// Profile 		godoc
+// @Summary 	Thông tin người dùng
+// @Produce 	application/json
+// @Tags 		User
+// @Security	BearerAuth
+// @Security	OAuth2Password
+// @Success 	200 {object} response.ProfileUserResponse
+// @Failure		400 {object} godoc.MessagesResponse
+// @Failure		401 {object} godoc.MessageResponse
+// @Failure		500 {object} godoc.MessageResponse
+// @Router		/user/profile [get]
+func (handler *UserHandler) HandleProfileUser() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		claimsRaw, exists := context.Get(constant.ContextKey.CLAIMS)
+		if !exists {
+			context.Error(errors.New("Không có thông tin xác thực"))
+			context.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		claims, ok := claimsRaw.(*utils.Claims)
+		if !ok {
+			context.Error(errors.New("Không thể ép kiểu Claims"))
+			context.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		response, customErr, err := utils.GetOrCache[response.ProfileUserResponse, response.ErrorResponse](
+			context.Request.Context(),
+			handler.redisClient,
+			fmt.Sprintf("user:profile:%v", claims.UserId),
+			24*time.Hour,
+			func() (*response.ProfileUserResponse, *response.ErrorResponse) {
+				return handler.userService.ProfileUser(context.Request.Context(), claims)
+			},
+		)
+		if err != nil {
+			context.Error(err)
+			context.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		if customErr != nil {
+			context.Error(errors.New(customErr.Message))
+			context.AbortWithStatus(customErr.StatusCode)
 			return
 		}
 		context.JSON(http.StatusOK, response)

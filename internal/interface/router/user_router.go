@@ -22,4 +22,9 @@ func InitUserRouter(engine *gin.Engine, handler *handler.UserHandler) {
 			handler.HandleLoginUser(),
 		)
 	}
+
+	authGroup := group.Group("", middleware.Authentication())
+	{
+		authGroup.GET("/profile", handler.HandleProfileUser())
+	}
 }

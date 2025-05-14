@@ -99,3 +99,24 @@ func (service *UserService) LoginUser(context context.Context, request *request.
 	}
 	return &response.LoginUserResponse{AccessToken: accessToken}, nil
 }
+
+func (service *UserService) ProfileUser(context context.Context, claims *utils.Claims) (*response.ProfileUserResponse, *response.ErrorResponse) {
+	userEntity, err := service.userRepository.FindById(context, claims.UserId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, &response.ErrorResponse{
+				Message:    "Người dùng không tồn tại",
+				StatusCode: http.StatusUnauthorized,
+			}
+		} else {
+			return nil, &response.ErrorResponse{
+				Message:    err.Error(),
+				StatusCode: http.StatusInternalServerError,
+			}
+		}
+	}
+	return &response.ProfileUserResponse{
+		Id:    userEntity.Id,
+		Email: userEntity.Email,
+	}, nil
+}

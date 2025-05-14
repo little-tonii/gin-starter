@@ -15,19 +15,47 @@ services:
       retries: 5
       start_period: 30s
 
-  gin-starter:
-    build:
-      context: ..
-      dockerfile: build/package/Dockerfile
-    container_name: gin-starter
-    depends_on:
-      postgres:
-        condition: service_healthy
-    ports:
-      - "8080:8080"
-    env_file:
-      - ../.env
+  redis-caching:
+    image: redis:latest
+    container_name: redis-caching
     restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-caching-data:/data
+    command: redis-server --save 60 1 --loglevel warning
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    container_name: redisinsight
+    restart: unless-stopped
+    ports:
+      - "5540:5540"
+    volumes:
+      - redisinsight-data:/db
+
+  # gin-starter:
+  #   build:
+  #     context: ..
+  #     dockerfile: build/package/Dockerfile
+  #   container_name: gin-starter
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis-caching:
+  #       condition: service_healthy
+  #   ports:
+  #     - "8080:8080"
+  #   env_file:
+  #     - ../.env
+  #   restart: unless-stopped
 
 volumes:
   gin-starter-postgres:
+  redis-caching-data:
+  redisinsight-data:

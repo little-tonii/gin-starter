@@ -18,12 +18,13 @@ type Locator struct {
 
 func InitLocator() *Locator {
 	database := config.GetDatabase()
+	redisClient := config.GetRedisClient()
 
 	userRepository := repository_impl.NewUserRepositoryImpl(database)
 
 	userService := service.NewUserService(userRepository)
 
-	userHandler := handler.NewUserHandler(userService)
+	userHandler := handler.NewUserHandler(redisClient, userService)
 
 	return &Locator{
 		UserRepository: userRepository,

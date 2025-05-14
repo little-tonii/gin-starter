@@ -13,15 +13,15 @@ import (
 )
 
 var (
-	database *gorm.DB
-	once     sync.Once
+	database     *gorm.DB
+	databaseOnce sync.Once
 )
 
 func InitializeDatabase() error {
 	var error error
-	once.Do(func() {
+	databaseOnce.Do(func() {
 		destination := fmt.Sprintf(
-			"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s TimeZone=%s",
+			"host=%s port=%d user=%s password=%s dbname=%s sslmode=%s TimeZone=%s",
 			constant.Environment.POSTGRES_HOST,
 			constant.Environment.POSTGRES_PORT,
 			constant.Environment.POSTGRES_USER,

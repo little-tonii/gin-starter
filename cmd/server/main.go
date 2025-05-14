@@ -44,6 +44,10 @@ func main() {
 	}
 	defer config.CloseDatabase()
 
+	if error := config.InitializeRedisCahing(); error != nil {
+		log.Fatal(error)
+	}
+
 	locator := di.InitLocator()
 
 	logFile, error := os.OpenFile("server.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
