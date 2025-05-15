@@ -22,18 +22,6 @@
 
 This project follows a modular structure, separating concerns into application, domain, infrastructure, and interface layers, making it easy to extend and maintain.
 
-## 🛠️ Technologies Used
-
-| Technology     | Description                  | Icon |
-| -------------- | --------------------------- | ---- |
-| Go             | Programming language         | ![Go](https://img.shields.io/badge/Go-00ADD8?logo=go) |
-| Gin            | Web framework                | ![Gin](https://img.shields.io/badge/Gin-1.9.1-green?logo=go) |
-| GORM           | ORM for Go                   | ![GORM](https://img.shields.io/badge/GORM-2.0+-blue?logo=go) |
-| PostgreSQL     | Relational database          | ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?logo=postgresql) |
-| Redis          | Caching                      | ![Redis](https://img.shields.io/badge/Redis-DC382D?logo=redis) |
-| Docker         | Packaging & Deployment       | ![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker) |
-| Swagger        | API Documentation            | ![Swagger](https://img.shields.io/badge/Swagger-UI-85EA2D?logo=swagger) |
-
 ## 📦 Project Structure
 
 ```
