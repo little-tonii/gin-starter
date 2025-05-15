@@ -89,7 +89,10 @@ func (service *UserService) LoginUser(context context.Context, request *request.
 	}
 	accessToken, err := utils.GenerateAccessToken(
 		constant.Environment.JWT_SECRET_KEY,
-		utils.Claims{UserId: userEntity.Id},
+		utils.Claims{
+			UserId:       userEntity.Id,
+			TokenVersion: userEntity.TokenVersion,
+		},
 	)
 	if err != nil {
 		return nil, &response.ErrorResponse{
@@ -113,6 +116,12 @@ func (service *UserService) ProfileUser(context context.Context, claims *utils.C
 				Message:    err.Error(),
 				StatusCode: http.StatusInternalServerError,
 			}
+		}
+	}
+	if claims.TokenVersion < userEntity.TokenVersion {
+		return nil, &response.ErrorResponse{
+			Message:    "Người dùng chưa đăng nhập",
+			StatusCode: http.StatusUnauthorized,
 		}
 	}
 	return &response.ProfileUserResponse{

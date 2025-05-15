@@ -8,13 +8,15 @@ import (
 )
 
 type Claims struct {
-	UserId int64
+	UserId       int64
+	TokenVersion int64
 }
 
 func GenerateAccessToken(secretKey string, claims Claims) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id":  claims.UserId,
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
+		"id":      claims.UserId,
+		"version": claims.TokenVersion,
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
 	})
 
 	return token.SignedString([]byte(secretKey))
@@ -22,8 +24,9 @@ func GenerateAccessToken(secretKey string, claims Claims) (string, error) {
 
 func GenerateRefreshToken(secretKey string, claims Claims) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id":  claims.UserId,
-		"exp": time.Now().Add(time.Hour * 24 * 7).Unix(),
+		"id":      claims.UserId,
+		"version": claims.TokenVersion,
+		"exp":     time.Now().Add(time.Hour * 24 * 7).Unix(),
 	})
 
 	return token.SignedString([]byte(secretKey))
@@ -56,7 +59,9 @@ func VerifyToken(secretKey string, token string) (*Claims, error) {
 		return nil, errors.New("Token không hợp lệ")
 	}
 	userId := claims["id"].(float64)
+	tokenVersion := claims["version"].(float64)
 	return &Claims{
-		UserId: int64(userId),
+		UserId:       int64(userId),
+		TokenVersion: int64(tokenVersion),
 	}, nil
 }
