@@ -12,13 +12,15 @@
 
 ## 🚀 Introduction
 
-**Gin Starter** is a backend project template using [Gin](https://github.com/gin-gonic/gin) (Go), pre-integrated with popular components such as:
+**Gin Starter** is a backend boilerplate project built with [Gin](https://github.com/gin-gonic/gin) (Go). It is designed to help you quickly start a new backend service with a clean architecture and common integrations already set up. The template includes:
 
-- **GORM** for ORM with PostgreSQL
-- **Redis** for caching
-- **JWT** for authentication
-- **Swagger** for API documentation
-- **Docker** & **docker-compose** for development and deployment
+- Database integration with PostgreSQL using GORM ORM.
+- Redis caching support.
+- JWT-based authentication.
+- Swagger UI for API documentation.
+- Docker and docker-compose for containerized development and deployment.
+
+This project follows a modular structure, separating concerns into application, domain, infrastructure, and interface layers, making it easy to extend and maintain.
 
 ## 🛠️ Technologies Used
 
@@ -49,6 +51,16 @@ gin-starter/
 └── ...
 ```
 
+- **build/package/Dockerfile**: Dockerfile for building the Go application image.
+- **cmd/server/**: Entry point for the application (main.go).
+- **deployments/docker-compose.yml**: Docker Compose file for local development.
+- **docs/**: Swagger/OpenAPI documentation files.
+- **internal/application/**: Application logic, DTOs, and services.
+- **internal/domain/**: Domain entities and repository interfaces.
+- **internal/infrastructure/**: Database, caching, and repository implementations.
+- **internal/interface/**: HTTP handlers, routers, and middleware.
+- **internal/shared/**: Shared constants, utilities, and dependency injection.
+
 ## ⚡️ Quick Start
 
 ### 1. Clone the project
@@ -60,7 +72,7 @@ cd gin-starter
 
 ### 2. Create `.env` file
 
-Create a `.env` file in the root directory with content like:
+Create a `.env` file in the root directory with the following content (adjust values as needed):
 
 ```env
 POSTGRES_HOST=localhost
@@ -81,18 +93,24 @@ REDIS_CACHING_DB=0
 
 ### 3. Run with Docker Compose
 
+To start the database, Redis, and (optionally) the backend service in containers:
+
 ```bash
 docker compose -f deployments/docker-compose.yml up --build
 ```
 
-> **Note:** To run the backend with Docker, uncomment the `gin-starter` service in `docker-compose.yml`.
+> **Note:** To run the backend in Docker, uncomment the `gin-starter` service in `docker-compose.yml`.
 
 ### 4. Run locally (without Docker)
+
+If you want to run the backend directly on your machine (make sure PostgreSQL and Redis are running):
 
 ```bash
 go run cmd/server/main.go
 ```
 
 ### 5. Access Swagger UI
+
+After starting the backend, you can view the API documentation at:
 
 - [http://localhost:8080/swagger/index.html](http://localhost:8080/swagger/index.html)
