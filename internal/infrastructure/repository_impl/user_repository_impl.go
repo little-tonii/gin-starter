@@ -51,7 +51,8 @@ func (repository *UserRepositoryImpl) Update(context context.Context, userEntity
 		Model(&model.UserModel{}).
 		Where("id = ?", userEntity.Id).
 		Updates(map[string]any{
-			"password": userEntity.Password,
+			"password":      userEntity.Password,
+			"token_version": userEntity.TokenVersion,
 		})
 	if result.Error != nil {
 		return result.Error

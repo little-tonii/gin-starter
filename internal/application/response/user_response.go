@@ -12,3 +12,7 @@ type ProfileUserResponse struct {
 	Id    int64  `json:"id"`
 	Email string `json:"email"`
 }
+
+type ChanagePasswordUserResponse struct {
+	Message string `json:"message"`
+}

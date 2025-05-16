@@ -129,3 +129,50 @@ func (service *UserService) ProfileUser(context context.Context, claims *utils.C
 		Email: userEntity.Email,
 	}, nil
 }
+
+func (service *UserService) ChangePasswordUser(context context.Context, claims *utils.Claims, request *request.ChangePasswordUserRequest) (*response.ChanagePasswordUserResponse, *response.ErrorResponse) {
+	userEntity, err := service.userRepository.FindById(context, claims.UserId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, &response.ErrorResponse{
+				Message:    "Người dùng không tồn tại",
+				StatusCode: http.StatusUnauthorized,
+			}
+		} else {
+			return nil, &response.ErrorResponse{
+				Message:    err.Error(),
+				StatusCode: http.StatusInternalServerError,
+			}
+		}
+	}
+	if claims.TokenVersion < userEntity.TokenVersion {
+		return nil, &response.ErrorResponse{
+			Message:    "Người dùng chưa đăng nhập",
+			StatusCode: http.StatusUnauthorized,
+		}
+	}
+	if !utils.CheckPasswordHash(request.OldPassword, userEntity.Password) {
+		return nil, &response.ErrorResponse{
+			Message:    "Tài khoản hoặc mật khẩu không chính xác",
+			StatusCode: http.StatusUnauthorized,
+		}
+	}
+	userEntity.Password, err = utils.HashPassword(request.NewPassword)
+	if err != nil {
+		return nil, &response.ErrorResponse{
+			Message:    err.Error(),
+			StatusCode: http.StatusInternalServerError,
+		}
+	}
+	userEntity.TokenVersion++
+	err = service.userRepository.Update(context, userEntity)
+	if err != nil {
+		return nil, &response.ErrorResponse{
+			Message:    err.Error(),
+			StatusCode: http.StatusInternalServerError,
+		}
+	}
+	return &response.ChanagePasswordUserResponse{
+		Message: "Đổi mật khẩu thành công",
+	}, nil
+}

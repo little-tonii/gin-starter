@@ -12,6 +12,13 @@ definitions:
           type: string
         type: array
     type: object
+  request.ChangePasswordUserRequest:
+    properties:
+      new_password:
+        type: string
+      old_password:
+        type: string
+    type: object
   request.LoginUserRequest:
     properties:
       password:
@@ -32,6 +39,11 @@ definitions:
     required:
     - email
     - password
+    type: object
+  response.ChanagePasswordUserResponse:
+    properties:
+      message:
+        type: string
     type: object
   response.LoginUserResponse:
     properties:
@@ -57,6 +69,40 @@ info:
   title: Title
   version: "1.0"
 paths:
+  /user/change-password:
+    post:
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.ChangePasswordUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ChanagePasswordUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/godoc.MessagesResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/godoc.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/godoc.MessageResponse'
+      security:
+      - BearerAuth: []
+      - OAuth2Password: []
+      summary: Đổi mật khẩu
+      tags:
+      - User
   /user/login:
     post:
       parameters:

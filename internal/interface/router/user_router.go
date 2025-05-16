@@ -26,5 +26,10 @@ func InitUserRouter(engine *gin.Engine, handler *handler.UserHandler) {
 	authGroup := group.Group("", middleware.Authentication())
 	{
 		authGroup.GET("/profile", handler.HandleProfileUser())
+		authGroup.POST(
+			"/change-password",
+			middleware.BindingValidator[request.ChangePasswordUserRequest](),
+			handler.HandleChangePasswordUser(),
+		)
 	}
 }

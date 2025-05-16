@@ -9,3 +9,8 @@ type LoginUserRequest struct {
 	Username string `json:"username" form:"username" binding:"required,email"`
 	Password string `json:"password" form:"password" binding:"required"`
 }
+
+type ChangePasswordUserRequest struct {
+	OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
+}

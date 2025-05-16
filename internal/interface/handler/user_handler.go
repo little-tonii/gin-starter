@@ -53,10 +53,10 @@ func (handler *UserHandler) HandleRegisterUser() gin.HandlerFunc {
 			context.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		response, err := handler.userService.RegisterUser(context.Request.Context(), request)
-		if err != nil {
-			context.Error(errors.New(err.Message))
-			context.AbortWithStatus(err.StatusCode)
+		response, customErr := handler.userService.RegisterUser(context.Request.Context(), request)
+		if customErr != nil {
+			context.Error(errors.New(customErr.Message))
+			context.AbortWithStatus(customErr.StatusCode)
 			return
 		}
 		context.JSON(http.StatusCreated, response)
@@ -87,10 +87,10 @@ func (handler *UserHandler) HandleLoginUser() gin.HandlerFunc {
 			context.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		response, err := handler.userService.LoginUser(context.Request.Context(), request)
-		if err != nil {
-			context.Error(errors.New(err.Message))
-			context.AbortWithStatus(err.StatusCode)
+		response, customErr := handler.userService.LoginUser(context.Request.Context(), request)
+		if customErr != nil {
+			context.Error(errors.New(customErr.Message))
+			context.AbortWithStatus(customErr.StatusCode)
 			return
 		}
 		context.JSON(http.StatusOK, response)
@@ -136,6 +136,54 @@ func (handler *UserHandler) HandleProfileUser() gin.HandlerFunc {
 			context.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
+		if customErr != nil {
+			context.Error(errors.New(customErr.Message))
+			context.AbortWithStatus(customErr.StatusCode)
+			return
+		}
+		context.JSON(http.StatusOK, response)
+	}
+}
+
+// ChangePassword 	godoc
+// @Summary 		Đổi mật khẩu
+// @Produce 		application/json
+// @Tags 			User
+// @Security		BearerAuth
+// @Security		OAuth2Password
+// @Param 			request body request.ChangePasswordUserRequest true "Request Body"
+// @Success 		200 {object} response.ChanagePasswordUserResponse
+// @Failure			400 {object} godoc.MessagesResponse
+// @Failure			401 {object} godoc.MessageResponse
+// @Failure			500 {object} godoc.MessageResponse
+// @Router			/user/change-password [post]
+func (handler *UserHandler) HandleChangePasswordUser() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		claimsRaw, exists := context.Get(constant.ContextKey.CLAIMS)
+		if !exists {
+			context.Error(errors.New("Không có thông tin xác thực"))
+			context.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		claims, ok := claimsRaw.(*utils.Claims)
+		if !ok {
+			context.Error(errors.New("Không thể ép kiểu Claims"))
+			context.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		requestRaw, exists := context.Get(constant.ContextKey.REQUEST_DATA)
+		if !exists {
+			context.Error(errors.New("Không có dữ liệu request"))
+			context.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		request, ok := requestRaw.(*request.ChangePasswordUserRequest)
+		if !ok {
+			context.Error(errors.New("Không thể ép kiểu ChangePasswordUserRequest"))
+			context.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		response, customErr := handler.userService.ChangePasswordUser(context.Request.Context(), claims, request)
 		if customErr != nil {
 			context.Error(errors.New(customErr.Message))
 			context.AbortWithStatus(customErr.StatusCode)
