@@ -259,6 +259,48 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/user/verify-otp-reset-password": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Xác thực OTP đặt lại mật khẩu",
+                "parameters": [
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.VerifyOtpResetPasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.VerifyOtpResetPasswordRepsonse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/godoc.MessagesResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/godoc.MessageResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -339,6 +381,21 @@ const docTemplate = `{
                 }
             }
         },
+        "request.VerifyOtpResetPasswordRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "otp_code"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "otp_code": {
+                    "type": "string"
+                }
+            }
+        },
         "response.ChanagePasswordUserResponse": {
             "type": "object",
             "properties": {
@@ -378,6 +435,14 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.VerifyOtpResetPasswordRepsonse": {
+            "type": "object",
+            "properties": {
+                "reset_token": {
                     "type": "string"
                 }
             }

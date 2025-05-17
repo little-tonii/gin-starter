@@ -226,3 +226,36 @@ func (handler *UserHandler) HandleForgotPasswordUser() gin.HandlerFunc {
 		context.JSON(http.StatusOK, response)
 	}
 }
+
+// VerifyOtpResetPassword 	godoc
+// @Summary 				Xác thực OTP đặt lại mật khẩu
+// @Produce 				application/json
+// @Tags 					User
+// @Param 					request body request.VerifyOtpResetPasswordRequest true "Request Body"
+// @Success 				200 {object} response.VerifyOtpResetPasswordRepsonse
+// @Failure					400 {object} godoc.MessagesResponse
+// @Failure					500 {object} godoc.MessageResponse
+// @Router					/user/verify-otp-reset-password [post]
+func (handler *UserHandler) HandleVerifyOtpResetPasswordUser() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		requestRaw, exists := context.Get(constant.ContextKey.REQUEST_DATA)
+		if !exists {
+			context.Error(errors.New("Không có dữ liệu request"))
+			context.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		request, ok := requestRaw.(*request.VerifyOtpResetPasswordRequest)
+		if !ok {
+			context.Error(errors.New("Không thể ép kiểu VerifyOtpResetPasswordRequest"))
+			context.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		response, customErr := handler.userService.VerifyOtpResetPasswordUser(context.Request.Context(), request)
+		if customErr != nil {
+			context.Error(errors.New(customErr.Message))
+			context.AbortWithStatus(customErr.StatusCode)
+			return
+		}
+		context.JSON(http.StatusOK, response)
+	}
+}

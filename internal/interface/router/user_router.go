@@ -26,6 +26,11 @@ func InitUserRouter(engine *gin.Engine, handler *handler.UserHandler) {
 			middleware.BindingValidator[request.ForgotPasswordUserRequest](),
 			handler.HandleForgotPasswordUser(),
 		)
+		group.POST(
+			"/user/verify-otp-reset-password",
+			middleware.BindingValidator[request.VerifyOtpResetPasswordRequest](),
+			handler.HandleVerifyOtpResetPasswordUser(),
+		)
 	}
 
 	authGroup := group.Group("", middleware.Authentication())

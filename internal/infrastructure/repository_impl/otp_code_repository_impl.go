@@ -18,21 +18,16 @@ func NewOtpCodeRepositoryImpl(database *gorm.DB) *OtpCodeRepositoryImpl {
 	}
 }
 
-func (repository *OtpCodeRepositoryImpl) FindByCode(context context.Context, code string) ([]*entity.OtpCodeEntity, error) {
-	otpCodeModels := make([]model.OtpCodeModel, 0)
-	err := repository.database.
+func (repository *OtpCodeRepositoryImpl) FindByUserIdAndCode(context context.Context, userId int64, code string) (*entity.OtpCodeEntity, error) {
+	var otpCodeModel model.OtpCodeModel
+	result := repository.database.
 		WithContext(context).
-		Preload("User").
-		Where("code = ?", code).
-		Find(&otpCodeModels).Error
-	if err != nil {
-		return nil, err
+		Where("user_id = ? AND code = ?", userId, code).
+		First(&otpCodeModel)
+	if result.Error != nil {
+		return nil, result.Error
 	}
-	otpCodeEntities := make([]*entity.OtpCodeEntity, 0, len(otpCodeModels))
-	for _, otpCodeModel := range otpCodeModels {
-		otpCodeEntities = append(otpCodeEntities, otpCodeModel.ToEntity())
-	}
-	return otpCodeEntities, nil
+	return otpCodeModel.ToEntity(), nil
 }
 
 func (repository *OtpCodeRepositoryImpl) DeleteByUserId(context context.Context, userId int64) error {
@@ -60,4 +55,15 @@ func (repository *OtpCodeRepositoryImpl) Save(context context.Context, otpCodeEn
 	}
 	otpCodeEntity.Id = otpCodeModel.Id
 	return nil
+}
+
+func (repository *OtpCodeRepositoryImpl) Update(context context.Context, otpCodeEntity *entity.OtpCodeEntity) error {
+	result := repository.database.
+		WithContext(context).
+		Model(&model.OtpCodeModel{}).
+		Where("id = ?", otpCodeEntity.Id).
+		Updates(map[string]any{
+			"reset_token": otpCodeEntity.ResetToken,
+		})
+	return result.Error
 }

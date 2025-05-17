@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -222,4 +223,53 @@ func (service *UserService) ForgotPasswordUser(context context.Context, request 
 		otpCodeEntity.Code,
 	)
 	return &response.ForgotPasswordUserResponse{Message: "OTP đã được gửi đến email của bạn"}, nil
+}
+
+func (service *UserService) VerifyOtpResetPasswordUser(context context.Context, request *request.VerifyOtpResetPasswordRequest) (*response.VerifyOtpResetPasswordRepsonse, *response.ErrorResponse) {
+	userEntity, err := service.userRepository.FindByEmail(context, request.Email)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, &response.ErrorResponse{
+				Message:    "Mã OTP không hợp lệ",
+				StatusCode: http.StatusBadRequest,
+			}
+		} else {
+			return nil, &response.ErrorResponse{
+				Message:    err.Error(),
+				StatusCode: http.StatusInternalServerError,
+			}
+		}
+	}
+	otpCodeEntity, err := service.otpCodeRepository.FindByUserIdAndCode(context, userEntity.Id, request.OtpCode)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, &response.ErrorResponse{
+				Message:    "Mã OTP không hợp lệ",
+				StatusCode: http.StatusBadRequest,
+			}
+		} else {
+			return nil, &response.ErrorResponse{
+				Message:    err.Error(),
+				StatusCode: http.StatusInternalServerError,
+			}
+		}
+	}
+	if otpCodeEntity.ExpiredAt.Before(time.Now()) {
+		return nil, &response.ErrorResponse{
+			Message:    "Mã OTP không hợp lệ",
+			StatusCode: http.StatusBadRequest,
+		}
+	}
+	randomUUID := uuid.New().String()
+	otpCodeEntity.ResetToken = &randomUUID
+	err = service.otpCodeRepository.Update(context, otpCodeEntity)
+	if err != nil {
+		return nil, &response.ErrorResponse{
+			Message:    err.Error(),
+			StatusCode: http.StatusInternalServerError,
+		}
+	}
+	return &response.VerifyOtpResetPasswordRepsonse{
+		ResetToken: *otpCodeEntity.ResetToken,
+	}, nil
 }

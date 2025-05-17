@@ -20,3 +20,7 @@ type ChanagePasswordUserResponse struct {
 type ForgotPasswordUserResponse struct {
 	Message string `json:"message"`
 }
+
+type VerifyOtpResetPasswordRepsonse struct {
+	ResetToken string `json:"reset_token"`
+}
