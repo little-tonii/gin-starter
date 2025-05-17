@@ -16,63 +16,63 @@ func BindingValidator[T any]() gin.HandlerFunc {
 	if tType := reflect.TypeOf(t); tType.Kind() != reflect.Struct {
 		panic("BindingValidator chỉ chấp nhận kiểu struct")
 	}
-	return func(context *gin.Context) {
+	return func(c *gin.Context) {
 		var requestData T
-		if error := context.ShouldBind(&requestData); error != nil {
+		if error := c.ShouldBind(&requestData); error != nil {
 			validationErrors, parseResult := error.(validator.ValidationErrors)
 			if parseResult {
 				for _, error := range validationErrors {
 					switch error.Tag() {
 					case "required":
-						context.Error(errors.New(fmt.Sprintf("Vui lòng cung cấp %s", error.Field())))
+						c.Error(errors.New(fmt.Sprintf("Vui lòng cung cấp %s", error.Field())))
 					case "email":
-						context.Error(errors.New(fmt.Sprintf("Địa chỉ email %v không hợp lệ", error.Value())))
+						c.Error(errors.New(fmt.Sprintf("Địa chỉ email %v không hợp lệ", error.Value())))
 					case "min":
-						context.Error(errors.New(fmt.Sprintf("%s phải có ít nhất %s ký tự", error.Field(), error.Param())))
+						c.Error(errors.New(fmt.Sprintf("%s phải có ít nhất %s ký tự", error.Field(), error.Param())))
 					case "max":
-						context.Error(errors.New(fmt.Sprintf("%s không được vượt quá %s ký tự", error.Field(), error.Param())))
+						c.Error(errors.New(fmt.Sprintf("%s không được vượt quá %s ký tự", error.Field(), error.Param())))
 					case "len":
-						context.Error(errors.New(fmt.Sprintf("%s phải có độ dài chính xác là %s ký tự", error.Field(), error.Param())))
+						c.Error(errors.New(fmt.Sprintf("%s phải có độ dài chính xác là %s ký tự", error.Field(), error.Param())))
 					case "gt":
-						context.Error(errors.New(fmt.Sprintf("%s phải lớn hơn %s", error.Field(), error.Param())))
+						c.Error(errors.New(fmt.Sprintf("%s phải lớn hơn %s", error.Field(), error.Param())))
 					case "gte":
-						context.Error(errors.New(fmt.Sprintf("%s phải lớn hơn hoặc bằng %s", error.Field(), error.Param())))
+						c.Error(errors.New(fmt.Sprintf("%s phải lớn hơn hoặc bằng %s", error.Field(), error.Param())))
 					case "lt":
-						context.Error(errors.New(fmt.Sprintf("%s phải nhỏ hơn %s", error.Field(), error.Param())))
+						c.Error(errors.New(fmt.Sprintf("%s phải nhỏ hơn %s", error.Field(), error.Param())))
 					case "lte":
-						context.Error(errors.New(fmt.Sprintf("%s phải nhỏ hơn hoặc bằng %s", error.Field(), error.Param())))
+						c.Error(errors.New(fmt.Sprintf("%s phải nhỏ hơn hoặc bằng %s", error.Field(), error.Param())))
 					case "alphanum":
-						context.Error(errors.New(fmt.Sprintf("%s chỉ được chứa các ký tự chữ và số", error.Field())))
+						c.Error(errors.New(fmt.Sprintf("%s chỉ được chứa các ký tự chữ và số", error.Field())))
 					case "url":
-						context.Error(errors.New(fmt.Sprintf("%s phải là một URL hợp lệ", error.Field())))
+						c.Error(errors.New(fmt.Sprintf("%s phải là một URL hợp lệ", error.Field())))
 					case "uuid":
-						context.Error(errors.New(fmt.Sprintf("%s phải là một UUID hợp lệ", error.Field())))
+						c.Error(errors.New(fmt.Sprintf("%s phải là một UUID hợp lệ", error.Field())))
 					case "ip":
-						context.Error(errors.New(fmt.Sprintf("%s phải là một địa chỉ IP hợp lệ", error.Field())))
+						c.Error(errors.New(fmt.Sprintf("%s phải là một địa chỉ IP hợp lệ", error.Field())))
 					case "ipv4":
-						context.Error(errors.New(fmt.Sprintf("%s phải là một địa chỉ IPv4 hợp lệ", error.Field())))
+						c.Error(errors.New(fmt.Sprintf("%s phải là một địa chỉ IPv4 hợp lệ", error.Field())))
 					case "ipv6":
-						context.Error(errors.New(fmt.Sprintf("%s phải là một địa chỉ IPv6 hợp lệ", error.Field())))
+						c.Error(errors.New(fmt.Sprintf("%s phải là một địa chỉ IPv6 hợp lệ", error.Field())))
 					case "numeric":
-						context.Error(errors.New(fmt.Sprintf("%s phải là một số", error.Field())))
+						c.Error(errors.New(fmt.Sprintf("%s phải là một số", error.Field())))
 					case "contains":
-						context.Error(errors.New(fmt.Sprintf("%s phải chứa chuỗi con '%s'", error.Field(), error.Param())))
+						c.Error(errors.New(fmt.Sprintf("%s phải chứa chuỗi con '%s'", error.Field(), error.Param())))
 					case "startswith":
-						context.Error(errors.New(fmt.Sprintf("%s phải bắt đầu bằng '%s'", error.Field(), error.Param())))
+						c.Error(errors.New(fmt.Sprintf("%s phải bắt đầu bằng '%s'", error.Field(), error.Param())))
 					case "endswith":
-						context.Error(errors.New(fmt.Sprintf("%s phải kết thúc bằng '%s'", error.Field(), error.Param())))
+						c.Error(errors.New(fmt.Sprintf("%s phải kết thúc bằng '%s'", error.Field(), error.Param())))
 					default:
-						context.Error(errors.New("Lỗi không không xác định khi validation"))
+						c.Error(errors.New("Lỗi không không xác định khi validation"))
 					}
 				}
-				context.AbortWithStatus(http.StatusBadRequest)
+				c.AbortWithStatus(http.StatusBadRequest)
 				return
 			}
-			context.Error(errors.New("Vui lòng cung cấp đầy đủ thông tin"))
-			context.AbortWithStatus(http.StatusBadRequest)
+			c.Error(errors.New("Vui lòng cung cấp đầy đủ thông tin"))
+			c.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
-		context.Set(constant.ContextKey.REQUEST_DATA, &requestData)
-		context.Next()
+		c.Set(constant.ContextKey.REQUEST_DATA, &requestData)
+		c.Next()
 	}
 }

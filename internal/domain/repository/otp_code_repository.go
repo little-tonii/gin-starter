@@ -6,9 +6,9 @@ import (
 )
 
 type OtpCodeRepository interface {
-	Save(context context.Context, otpCodeEntity *entity.OtpCodeEntity) error
-	FindByUserIdAndCode(context context.Context, userId int64, code string) (*entity.OtpCodeEntity, error)
-	DeleteByUserId(context context.Context, userId int64) error
-	Update(context context.Context, otpCodeEntity *entity.OtpCodeEntity) error
-	FindByResetToken(context context.Context, resetToken string) (*entity.OtpCodeEntity, error)
+	Save(ctx context.Context, otpCodeEntity *entity.OtpCodeEntity) error
+	FindByUserIdAndCode(ctx context.Context, userId int64, code string) (*entity.OtpCodeEntity, error)
+	DeleteByUserId(ctx context.Context, userId int64) error
+	Update(ctx context.Context, otpCodeEntity *entity.OtpCodeEntity) error
+	FindByResetToken(ctx context.Context, resetToken string) (*entity.OtpCodeEntity, error)
 }

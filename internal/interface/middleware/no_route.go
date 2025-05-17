@@ -7,7 +7,7 @@ import (
 )
 
 func NoRoute() gin.HandlerFunc {
-	return func(context *gin.Context) {
-		context.JSON(http.StatusNotFound, gin.H{"message": "Điểm truy cập không tồn tại"})
+	return func(c *gin.Context) {
+		c.JSON(http.StatusNotFound, gin.H{"message": "Điểm truy cập không tồn tại"})
 	}
 }

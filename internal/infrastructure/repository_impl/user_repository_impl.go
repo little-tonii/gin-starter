@@ -18,10 +18,10 @@ func NewUserRepositoryImpl(database *gorm.DB) *UserRepositoryImpl {
 	}
 }
 
-func (repository *UserRepositoryImpl) FindById(context context.Context, id int64) (*entity.UserEntity, error) {
+func (repository *UserRepositoryImpl) FindById(ctx context.Context, id int64) (*entity.UserEntity, error) {
 	var userModel model.UserModel
 	result := repository.database.
-		WithContext(context).
+		WithContext(ctx).
 		Where("id = ?", id).
 		First(&userModel)
 	if result.Error != nil {
@@ -30,13 +30,13 @@ func (repository *UserRepositoryImpl) FindById(context context.Context, id int64
 	return userModel.ToEntity(), nil
 }
 
-func (repository *UserRepositoryImpl) Save(context context.Context, userEntity *entity.UserEntity) error {
+func (repository *UserRepositoryImpl) Save(ctx context.Context, userEntity *entity.UserEntity) error {
 	userModel := model.UserModel{
 		Password: userEntity.Password,
 		Email:    userEntity.Email,
 	}
 	result := repository.database.
-		WithContext(context).
+		WithContext(ctx).
 		Create(&userModel)
 	if result.Error != nil {
 		return result.Error
@@ -45,9 +45,9 @@ func (repository *UserRepositoryImpl) Save(context context.Context, userEntity *
 	return nil
 }
 
-func (repository *UserRepositoryImpl) Update(context context.Context, userEntity *entity.UserEntity) error {
+func (repository *UserRepositoryImpl) Update(ctx context.Context, userEntity *entity.UserEntity) error {
 	result := repository.database.
-		WithContext(context).
+		WithContext(ctx).
 		Model(&model.UserModel{}).
 		Where("id = ?", userEntity.Id).
 		Updates(map[string]any{
@@ -60,10 +60,10 @@ func (repository *UserRepositoryImpl) Update(context context.Context, userEntity
 	return nil
 }
 
-func (repository *UserRepositoryImpl) FindByEmail(context context.Context, email string) (*entity.UserEntity, error) {
+func (repository *UserRepositoryImpl) FindByEmail(ctx context.Context, email string) (*entity.UserEntity, error) {
 	var userModel model.UserModel
 	result := repository.database.
-		WithContext(context).
+		WithContext(ctx).
 		Where("email = ?", email).
 		First(&userModel)
 	if result.Error != nil {

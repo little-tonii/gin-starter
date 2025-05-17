@@ -13,44 +13,44 @@ import (
 )
 
 func RateLimit(maxRequest int64, duration time.Duration) gin.HandlerFunc {
-	return func(context *gin.Context) {
+	return func(c *gin.Context) {
 		var key string
-		claims, exists := context.Get(constant.ContextKey.CLAIMS)
+		claims, exists := c.Get(constant.ContextKey.CLAIMS)
 		if exists {
 			if claims, ok := claims.(utils.Claims); ok {
-				key = fmt.Sprintf("rate_limit:%s:%v", context.FullPath(), claims.UserId)
+				key = fmt.Sprintf("rate_limit:%s:%v", c.FullPath(), claims.UserId)
 			}
 		}
 		if key == "" {
-			key = fmt.Sprintf("rate_limit:%s:%s", context.FullPath(), context.ClientIP())
+			key = fmt.Sprintf("rate_limit:%s:%s", c.FullPath(), c.ClientIP())
 		}
 		redisClient := config.GetRedisClient()
-		count, err := redisClient.Incr(context.Request.Context(), key).Result()
+		count, err := redisClient.Incr(c.Request.Context(), key).Result()
 		if err != nil {
-			context.Error(err)
-			context.AbortWithStatus(http.StatusInternalServerError)
+			c.Error(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 		if count == 1 {
-			err := redisClient.Expire(context.Request.Context(), key, duration).Err()
+			err := redisClient.Expire(c.Request.Context(), key, duration).Err()
 			if err != nil {
-				context.Error(err)
-				context.AbortWithStatus(http.StatusInternalServerError)
+				c.Error(err)
+				c.AbortWithStatus(http.StatusInternalServerError)
 				return
 			}
 		}
 		if count > maxRequest {
-			ttl, err := redisClient.TTL(context.Request.Context(), key).Result()
+			ttl, err := redisClient.TTL(c.Request.Context(), key).Result()
 			if err != nil {
-				context.Error(err)
-				context.AbortWithStatus(http.StatusInternalServerError)
+				c.Error(err)
+				c.AbortWithStatus(http.StatusInternalServerError)
 				return
 			} else {
-				context.Error(errors.New(fmt.Sprintf("Vui lòng thử lại sau %d giây", int(ttl.Seconds()))))
-				context.AbortWithStatus(http.StatusTooManyRequests)
+				c.Error(errors.New(fmt.Sprintf("Vui lòng thử lại sau %d giây", int(ttl.Seconds()))))
+				c.AbortWithStatus(http.StatusTooManyRequests)
 				return
 			}
 		}
-		context.Next()
+		c.Next()
 	}
 }

@@ -9,13 +9,13 @@ import (
 )
 
 func GetOrCache[T any, U any](
-	context context.Context,
+	ctx context.Context,
 	client *redis.Client,
 	key string,
 	ttl time.Duration,
 	fetchFunc func() (*T, *U),
 ) (*T, *U, error) {
-	cache, cmdErr := client.Get(context, key).Result()
+	cache, cmdErr := client.Get(ctx, key).Result()
 	if cmdErr == nil {
 		var result T
 		if unmarshalErr := json.Unmarshal([]byte(cache), &result); unmarshalErr == nil {
@@ -28,7 +28,7 @@ func GetOrCache[T any, U any](
 	}
 	bytes, marshalErr := json.Marshal(data)
 	if marshalErr == nil {
-		cmdErr := client.Set(context, key, bytes, ttl)
+		cmdErr := client.Set(ctx, key, bytes, ttl)
 		if cmdErr.Err() != nil {
 			return nil, nil, cmdErr.Err()
 		}

@@ -39,27 +39,27 @@ func NewUserHandler(redisClient *redis.Client, userService *service.UserService)
 // @Failure		500 {object} godoc.MessageResponse
 // @Router		/user/register [post]
 func (handler *UserHandler) HandleRegisterUser() gin.HandlerFunc {
-	return func(context *gin.Context) {
-		requestRaw, exists := context.Get(constant.ContextKey.REQUEST_DATA)
+	return func(c *gin.Context) {
+		requestRaw, exists := c.Get(constant.ContextKey.REQUEST_DATA)
 		if !exists {
-			context.Error(errors.New("Không có dữ liệu request"))
-			context.AbortWithStatus(http.StatusInternalServerError)
+			c.Error(errors.New("Không có dữ liệu request"))
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 		request, ok := requestRaw.(*request.RegisterUserRequest)
 		request.Email = strings.ToLower(request.Email)
 		if !ok {
-			context.Error(errors.New("Không thể ép kiểu RegisterUserRequest"))
-			context.AbortWithStatus(http.StatusInternalServerError)
+			c.Error(errors.New("Không thể ép kiểu RegisterUserRequest"))
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		response, customErr := handler.userService.RegisterUser(context.Request.Context(), request)
+		response, customErr := handler.userService.RegisterUser(c.Request.Context(), request)
 		if customErr != nil {
-			context.Error(errors.New(customErr.Message))
-			context.AbortWithStatus(customErr.StatusCode)
+			c.Error(errors.New(customErr.Message))
+			c.AbortWithStatus(customErr.StatusCode)
 			return
 		}
-		context.JSON(http.StatusCreated, response)
+		c.JSON(http.StatusCreated, response)
 	}
 }
 
@@ -74,26 +74,26 @@ func (handler *UserHandler) HandleRegisterUser() gin.HandlerFunc {
 // @Failure		500 {object} godoc.MessageResponse
 // @Router		/user/login [post]
 func (handler *UserHandler) HandleLoginUser() gin.HandlerFunc {
-	return func(context *gin.Context) {
-		requestRaw, exists := context.Get(constant.ContextKey.REQUEST_DATA)
+	return func(c *gin.Context) {
+		requestRaw, exists := c.Get(constant.ContextKey.REQUEST_DATA)
 		if !exists {
-			context.Error(errors.New("Không có dữ liệu request"))
-			context.AbortWithStatus(http.StatusInternalServerError)
+			c.Error(errors.New("Không có dữ liệu request"))
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 		request, ok := requestRaw.(*request.LoginUserRequest)
 		if !ok {
-			context.Error(errors.New("Không thể ép kiểu LoginUserRequest"))
-			context.AbortWithStatus(http.StatusInternalServerError)
+			c.Error(errors.New("Không thể ép kiểu LoginUserRequest"))
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		response, customErr := handler.userService.LoginUser(context.Request.Context(), request)
+		response, customErr := handler.userService.LoginUser(c.Request.Context(), request)
 		if customErr != nil {
-			context.Error(errors.New(customErr.Message))
-			context.AbortWithStatus(customErr.StatusCode)
+			c.Error(errors.New(customErr.Message))
+			c.AbortWithStatus(customErr.StatusCode)
 			return
 		}
-		context.JSON(http.StatusOK, response)
+		c.JSON(http.StatusOK, response)
 	}
 }
 
@@ -109,39 +109,39 @@ func (handler *UserHandler) HandleLoginUser() gin.HandlerFunc {
 // @Failure		500 {object} godoc.MessageResponse
 // @Router		/user/profile [get]
 func (handler *UserHandler) HandleProfileUser() gin.HandlerFunc {
-	return func(context *gin.Context) {
-		claimsRaw, exists := context.Get(constant.ContextKey.CLAIMS)
+	return func(c *gin.Context) {
+		claimsRaw, exists := c.Get(constant.ContextKey.CLAIMS)
 		if !exists {
-			context.Error(errors.New("Không có thông tin xác thực"))
-			context.AbortWithStatus(http.StatusInternalServerError)
+			c.Error(errors.New("Không có thông tin xác thực"))
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 		claims, ok := claimsRaw.(*utils.Claims)
 		if !ok {
-			context.Error(errors.New("Không thể ép kiểu Claims"))
-			context.AbortWithStatus(http.StatusInternalServerError)
+			c.Error(errors.New("Không thể ép kiểu Claims"))
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 		response, customErr, err := utils.GetOrCache[response.ProfileUserResponse, response.ErrorResponse](
-			context.Request.Context(),
+			c.Request.Context(),
 			handler.redisClient,
 			fmt.Sprintf("user:profile:%v", claims.UserId),
 			24*time.Hour,
 			func() (*response.ProfileUserResponse, *response.ErrorResponse) {
-				return handler.userService.ProfileUser(context.Request.Context(), claims)
+				return handler.userService.ProfileUser(c.Request.Context(), claims)
 			},
 		)
 		if err != nil {
-			context.Error(err)
-			context.AbortWithStatus(http.StatusInternalServerError)
+			c.Error(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 		if customErr != nil {
-			context.Error(errors.New(customErr.Message))
-			context.AbortWithStatus(customErr.StatusCode)
+			c.Error(errors.New(customErr.Message))
+			c.AbortWithStatus(customErr.StatusCode)
 			return
 		}
-		context.JSON(http.StatusOK, response)
+		c.JSON(http.StatusOK, response)
 	}
 }
 
@@ -158,38 +158,38 @@ func (handler *UserHandler) HandleProfileUser() gin.HandlerFunc {
 // @Failure			500 {object} godoc.MessageResponse
 // @Router			/user/change-password [post]
 func (handler *UserHandler) HandleChangePasswordUser() gin.HandlerFunc {
-	return func(context *gin.Context) {
-		claimsRaw, exists := context.Get(constant.ContextKey.CLAIMS)
+	return func(c *gin.Context) {
+		claimsRaw, exists := c.Get(constant.ContextKey.CLAIMS)
 		if !exists {
-			context.Error(errors.New("Không có thông tin xác thực"))
-			context.AbortWithStatus(http.StatusInternalServerError)
+			c.Error(errors.New("Không có thông tin xác thực"))
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 		claims, ok := claimsRaw.(*utils.Claims)
 		if !ok {
-			context.Error(errors.New("Không thể ép kiểu Claims"))
-			context.AbortWithStatus(http.StatusInternalServerError)
+			c.Error(errors.New("Không thể ép kiểu Claims"))
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		requestRaw, exists := context.Get(constant.ContextKey.REQUEST_DATA)
+		requestRaw, exists := c.Get(constant.ContextKey.REQUEST_DATA)
 		if !exists {
-			context.Error(errors.New("Không có dữ liệu request"))
-			context.AbortWithStatus(http.StatusInternalServerError)
+			c.Error(errors.New("Không có dữ liệu request"))
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 		request, ok := requestRaw.(*request.ChangePasswordUserRequest)
 		if !ok {
-			context.Error(errors.New("Không thể ép kiểu ChangePasswordUserRequest"))
-			context.AbortWithStatus(http.StatusInternalServerError)
+			c.Error(errors.New("Không thể ép kiểu ChangePasswordUserRequest"))
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		response, customErr := handler.userService.ChangePasswordUser(context.Request.Context(), claims, request)
+		response, customErr := handler.userService.ChangePasswordUser(c.Request.Context(), claims, request)
 		if customErr != nil {
-			context.Error(errors.New(customErr.Message))
-			context.AbortWithStatus(customErr.StatusCode)
+			c.Error(errors.New(customErr.Message))
+			c.AbortWithStatus(customErr.StatusCode)
 			return
 		}
-		context.JSON(http.StatusOK, response)
+		c.JSON(http.StatusOK, response)
 	}
 }
 
@@ -204,26 +204,26 @@ func (handler *UserHandler) HandleChangePasswordUser() gin.HandlerFunc {
 // @Failure			500 {object} godoc.MessageResponse
 // @Router			/user/forgot-password [post]
 func (handler *UserHandler) HandleForgotPasswordUser() gin.HandlerFunc {
-	return func(context *gin.Context) {
-		requestRaw, exists := context.Get(constant.ContextKey.REQUEST_DATA)
+	return func(c *gin.Context) {
+		requestRaw, exists := c.Get(constant.ContextKey.REQUEST_DATA)
 		if !exists {
-			context.Error(errors.New("Không có dữ liệu request"))
-			context.AbortWithStatus(http.StatusInternalServerError)
+			c.Error(errors.New("Không có dữ liệu request"))
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 		request, ok := requestRaw.(*request.ForgotPasswordUserRequest)
 		if !ok {
-			context.Error(errors.New("Không thể ép kiểu ForgotPasswordUserRequest"))
-			context.AbortWithStatus(http.StatusInternalServerError)
+			c.Error(errors.New("Không thể ép kiểu ForgotPasswordUserRequest"))
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		response, customErr := handler.userService.ForgotPasswordUser(context.Request.Context(), request)
+		response, customErr := handler.userService.ForgotPasswordUser(c.Request.Context(), request)
 		if customErr != nil {
-			context.Error(errors.New(customErr.Message))
-			context.AbortWithStatus(customErr.StatusCode)
+			c.Error(errors.New(customErr.Message))
+			c.AbortWithStatus(customErr.StatusCode)
 			return
 		}
-		context.JSON(http.StatusOK, response)
+		c.JSON(http.StatusOK, response)
 	}
 }
 
@@ -237,26 +237,26 @@ func (handler *UserHandler) HandleForgotPasswordUser() gin.HandlerFunc {
 // @Failure					500 {object} godoc.MessageResponse
 // @Router					/user/verify-otp-reset-password [post]
 func (handler *UserHandler) HandleVerifyOtpResetPasswordUser() gin.HandlerFunc {
-	return func(context *gin.Context) {
-		requestRaw, exists := context.Get(constant.ContextKey.REQUEST_DATA)
+	return func(c *gin.Context) {
+		requestRaw, exists := c.Get(constant.ContextKey.REQUEST_DATA)
 		if !exists {
-			context.Error(errors.New("Không có dữ liệu request"))
-			context.AbortWithStatus(http.StatusInternalServerError)
+			c.Error(errors.New("Không có dữ liệu request"))
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 		request, ok := requestRaw.(*request.VerifyOtpResetPasswordUserRequest)
 		if !ok {
-			context.Error(errors.New("Không thể ép kiểu VerifyOtpResetPasswordRequest"))
-			context.AbortWithStatus(http.StatusInternalServerError)
+			c.Error(errors.New("Không thể ép kiểu VerifyOtpResetPasswordRequest"))
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		response, customErr := handler.userService.VerifyOtpResetPasswordUser(context.Request.Context(), request)
+		response, customErr := handler.userService.VerifyOtpResetPasswordUser(c.Request.Context(), request)
 		if customErr != nil {
-			context.Error(errors.New(customErr.Message))
-			context.AbortWithStatus(customErr.StatusCode)
+			c.Error(errors.New(customErr.Message))
+			c.AbortWithStatus(customErr.StatusCode)
 			return
 		}
-		context.JSON(http.StatusOK, response)
+		c.JSON(http.StatusOK, response)
 	}
 }
 
@@ -270,25 +270,25 @@ func (handler *UserHandler) HandleVerifyOtpResetPasswordUser() gin.HandlerFunc {
 // @Failure			500 {object} godoc.MessageResponse
 // @Router			/user/reset-password [post]
 func (handler *UserHandler) HandleResetPasswordUser() gin.HandlerFunc {
-	return func(context *gin.Context) {
-		requestRaw, exists := context.Get(constant.ContextKey.REQUEST_DATA)
+	return func(c *gin.Context) {
+		requestRaw, exists := c.Get(constant.ContextKey.REQUEST_DATA)
 		if !exists {
-			context.Error(errors.New("Không có dữ liệu request"))
-			context.AbortWithStatus(http.StatusInternalServerError)
+			c.Error(errors.New("Không có dữ liệu request"))
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 		request, ok := requestRaw.(*request.ResetPasswordUserRequest)
 		if !ok {
-			context.Error(errors.New("Không thể ép kiểu ResetPasswordUserRequest"))
-			context.AbortWithStatus(http.StatusInternalServerError)
+			c.Error(errors.New("Không thể ép kiểu ResetPasswordUserRequest"))
+			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		response, customErr := handler.userService.ResetPasswordUser(context.Request.Context(), request)
+		response, customErr := handler.userService.ResetPasswordUser(c.Request.Context(), request)
 		if customErr != nil {
-			context.Error(errors.New(customErr.Message))
-			context.AbortWithStatus(customErr.StatusCode)
+			c.Error(errors.New(customErr.Message))
+			c.AbortWithStatus(customErr.StatusCode)
 			return
 		}
-		context.JSON(http.StatusOK, response)
+		c.JSON(http.StatusOK, response)
 	}
 }

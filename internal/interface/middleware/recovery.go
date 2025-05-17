@@ -8,13 +8,13 @@ import (
 )
 
 func Recovery() gin.HandlerFunc {
-	return func(context *gin.Context) {
+	return func(c *gin.Context) {
 		defer func() {
 			if recovery := recover(); recovery != nil {
-				context.JSON(http.StatusInternalServerError, gin.H{"message": fmt.Sprintf("%v", recovery)})
-				context.Abort()
+				c.JSON(http.StatusInternalServerError, gin.H{"message": fmt.Sprintf("%v", recovery)})
+				c.Abort()
 			}
 		}()
-		context.Next()
+		c.Next()
 	}
 }

@@ -6,8 +6,8 @@ import (
 )
 
 type UserRepository interface {
-	FindById(context context.Context, id int64) (*entity.UserEntity, error)
-	FindByEmail(context context.Context, email string) (*entity.UserEntity, error)
-	Save(context context.Context, userEntity *entity.UserEntity) error
-	Update(context context.Context, userEntity *entity.UserEntity) error
+	FindById(ctx context.Context, id int64) (*entity.UserEntity, error)
+	FindByEmail(ctx context.Context, email string) (*entity.UserEntity, error)
+	Save(ctx context.Context, userEntity *entity.UserEntity) error
+	Update(ctx context.Context, userEntity *entity.UserEntity) error
 }

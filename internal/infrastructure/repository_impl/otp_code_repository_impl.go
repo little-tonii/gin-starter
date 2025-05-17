@@ -18,10 +18,10 @@ func NewOtpCodeRepositoryImpl(database *gorm.DB) *OtpCodeRepositoryImpl {
 	}
 }
 
-func (repository *OtpCodeRepositoryImpl) FindByUserIdAndCode(context context.Context, userId int64, code string) (*entity.OtpCodeEntity, error) {
+func (repository *OtpCodeRepositoryImpl) FindByUserIdAndCode(ctx context.Context, userId int64, code string) (*entity.OtpCodeEntity, error) {
 	var otpCodeModel model.OtpCodeModel
 	result := repository.database.
-		WithContext(context).
+		WithContext(ctx).
 		Where("user_id = ? AND code = ?", userId, code).
 		First(&otpCodeModel)
 	if result.Error != nil {
@@ -30,9 +30,9 @@ func (repository *OtpCodeRepositoryImpl) FindByUserIdAndCode(context context.Con
 	return otpCodeModel.ToEntity(), nil
 }
 
-func (repository *OtpCodeRepositoryImpl) DeleteByUserId(context context.Context, userId int64) error {
+func (repository *OtpCodeRepositoryImpl) DeleteByUserId(ctx context.Context, userId int64) error {
 	result := repository.database.
-		WithContext(context).
+		WithContext(ctx).
 		Where("user_id = ?", userId).
 		Delete(&model.OtpCodeModel{})
 	if result.Error != nil {
@@ -41,14 +41,14 @@ func (repository *OtpCodeRepositoryImpl) DeleteByUserId(context context.Context,
 	return nil
 }
 
-func (repository *OtpCodeRepositoryImpl) Save(context context.Context, otpCodeEntity *entity.OtpCodeEntity) error {
+func (repository *OtpCodeRepositoryImpl) Save(ctx context.Context, otpCodeEntity *entity.OtpCodeEntity) error {
 	otpCodeModel := model.OtpCodeModel{
 		Code:      otpCodeEntity.Code,
 		ExpiredAt: otpCodeEntity.ExpiredAt,
 		UserId:    otpCodeEntity.UserId,
 	}
 	result := repository.database.
-		WithContext(context).
+		WithContext(ctx).
 		Create(&otpCodeModel)
 	if result.Error != nil {
 		return result.Error
@@ -57,9 +57,9 @@ func (repository *OtpCodeRepositoryImpl) Save(context context.Context, otpCodeEn
 	return nil
 }
 
-func (repository *OtpCodeRepositoryImpl) Update(context context.Context, otpCodeEntity *entity.OtpCodeEntity) error {
+func (repository *OtpCodeRepositoryImpl) Update(ctx context.Context, otpCodeEntity *entity.OtpCodeEntity) error {
 	result := repository.database.
-		WithContext(context).
+		WithContext(ctx).
 		Model(&model.OtpCodeModel{}).
 		Where("id = ?", otpCodeEntity.Id).
 		Updates(map[string]any{
@@ -68,10 +68,10 @@ func (repository *OtpCodeRepositoryImpl) Update(context context.Context, otpCode
 	return result.Error
 }
 
-func (repository *OtpCodeRepositoryImpl) FindByResetToken(context context.Context, resetToken string) (*entity.OtpCodeEntity, error) {
+func (repository *OtpCodeRepositoryImpl) FindByResetToken(ctx context.Context, resetToken string) (*entity.OtpCodeEntity, error) {
 	var otpCodeModel model.OtpCodeModel
 	result := repository.database.
-		WithContext(context).
+		WithContext(ctx).
 		Where("reset_token = ?", resetToken).
 		First(&otpCodeModel)
 	if result.Error != nil {

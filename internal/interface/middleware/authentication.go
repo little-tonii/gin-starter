@@ -11,18 +11,18 @@ import (
 )
 
 func Authentication() gin.HandlerFunc {
-	return func(context *gin.Context) {
-		authHeader := context.Request.Header.Get("Authorization")
+	return func(c *gin.Context) {
+		authHeader := c.Request.Header.Get("Authorization")
 		if authHeader == "" {
-			context.Error(errors.New("Người dùng chưa đăng nhập"))
-			context.AbortWithStatus(http.StatusUnauthorized)
+			c.Error(errors.New("Người dùng chưa đăng nhập"))
+			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
 
 		const prefix = "Bearer "
 		if len(authHeader) <= len(prefix) || authHeader[:len(prefix)] != prefix {
-			context.Error(errors.New("Authorization header không hợp lệ"))
-			context.AbortWithStatus(http.StatusUnauthorized)
+			c.Error(errors.New("Authorization header không hợp lệ"))
+			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
 
@@ -31,12 +31,12 @@ func Authentication() gin.HandlerFunc {
 		claims, err := utils.VerifyToken(constant.Environment.JWT_SECRET_KEY, token)
 
 		if err != nil {
-			context.Error(errors.New(err.Error()))
-			context.AbortWithStatus(http.StatusUnauthorized)
+			c.Error(errors.New(err.Error()))
+			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
 
-		context.Set(constant.ContextKey.CLAIMS, claims)
-		context.Next()
+		c.Set(constant.ContextKey.CLAIMS, claims)
+		c.Next()
 	}
 }
