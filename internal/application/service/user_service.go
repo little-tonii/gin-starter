@@ -225,7 +225,7 @@ func (service *UserService) ForgotPasswordUser(context context.Context, request 
 	return &response.ForgotPasswordUserResponse{Message: "OTP đã được gửi đến email của bạn"}, nil
 }
 
-func (service *UserService) VerifyOtpResetPasswordUser(context context.Context, request *request.VerifyOtpResetPasswordRequest) (*response.VerifyOtpResetPasswordRepsonse, *response.ErrorResponse) {
+func (service *UserService) VerifyOtpResetPasswordUser(context context.Context, request *request.VerifyOtpResetPasswordUserRequest) (*response.VerifyOtpResetPasswordUserRepsonse, *response.ErrorResponse) {
 	userEntity, err := service.userRepository.FindByEmail(context, request.Email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -269,7 +269,54 @@ func (service *UserService) VerifyOtpResetPasswordUser(context context.Context, 
 			StatusCode: http.StatusInternalServerError,
 		}
 	}
-	return &response.VerifyOtpResetPasswordRepsonse{
+	return &response.VerifyOtpResetPasswordUserRepsonse{
 		ResetToken: *otpCodeEntity.ResetToken,
 	}, nil
+}
+
+func (service *UserService) ResetPasswordUser(context context.Context, request *request.ResetPasswordUserRequest) (*response.ResetPasswordUserResponse, *response.ErrorResponse) {
+	otpCodeEntity, err := service.otpCodeRepository.FindByResetToken(context, request.ResetToken)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, &response.ErrorResponse{
+				Message:    "Reset token không hợp lệ",
+				StatusCode: http.StatusBadRequest,
+			}
+		} else {
+			return nil, &response.ErrorResponse{
+				Message:    err.Error(),
+				StatusCode: http.StatusInternalServerError,
+			}
+		}
+	}
+	userEntity, err := service.userRepository.FindById(context, otpCodeEntity.UserId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, &response.ErrorResponse{
+				Message:    "Reset token không hợp lệ",
+				StatusCode: http.StatusBadRequest,
+			}
+		} else {
+			return nil, &response.ErrorResponse{
+				Message:    err.Error(),
+				StatusCode: http.StatusInternalServerError,
+			}
+		}
+	}
+	userEntity.Password, err = utils.HashPassword(request.NewPassword)
+	if err != nil {
+		return nil, &response.ErrorResponse{
+			Message:    err.Error(),
+			StatusCode: http.StatusInternalServerError,
+		}
+	}
+	err = service.userRepository.Update(context, userEntity)
+	if err != nil {
+		return nil, &response.ErrorResponse{
+			Message:    err.Error(),
+			StatusCode: http.StatusInternalServerError,
+		}
+	}
+	go service.otpCodeRepository.DeleteByUserId(nil, userEntity.Id)
+	return &response.ResetPasswordUserResponse{Message: "Đổi mật khẩu thành công, vui lòng đăng nhập lại"}, nil
 }

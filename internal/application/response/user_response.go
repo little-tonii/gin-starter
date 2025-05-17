@@ -21,6 +21,10 @@ type ForgotPasswordUserResponse struct {
 	Message string `json:"message"`
 }
 
-type VerifyOtpResetPasswordRepsonse struct {
+type VerifyOtpResetPasswordUserRepsonse struct {
 	ResetToken string `json:"reset_token"`
+}
+
+type ResetPasswordUserResponse struct {
+	Message string `json:"message"`
 }

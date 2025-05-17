@@ -231,8 +231,8 @@ func (handler *UserHandler) HandleForgotPasswordUser() gin.HandlerFunc {
 // @Summary 				Xác thực OTP đặt lại mật khẩu
 // @Produce 				application/json
 // @Tags 					User
-// @Param 					request body request.VerifyOtpResetPasswordRequest true "Request Body"
-// @Success 				200 {object} response.VerifyOtpResetPasswordRepsonse
+// @Param 					request body request.VerifyOtpResetPasswordUserRequest true "Request Body"
+// @Success 				200 {object} response.VerifyOtpResetPasswordUserRepsonse
 // @Failure					400 {object} godoc.MessagesResponse
 // @Failure					500 {object} godoc.MessageResponse
 // @Router					/user/verify-otp-reset-password [post]
@@ -244,13 +244,46 @@ func (handler *UserHandler) HandleVerifyOtpResetPasswordUser() gin.HandlerFunc {
 			context.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		request, ok := requestRaw.(*request.VerifyOtpResetPasswordRequest)
+		request, ok := requestRaw.(*request.VerifyOtpResetPasswordUserRequest)
 		if !ok {
 			context.Error(errors.New("Không thể ép kiểu VerifyOtpResetPasswordRequest"))
 			context.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
 		response, customErr := handler.userService.VerifyOtpResetPasswordUser(context.Request.Context(), request)
+		if customErr != nil {
+			context.Error(errors.New(customErr.Message))
+			context.AbortWithStatus(customErr.StatusCode)
+			return
+		}
+		context.JSON(http.StatusOK, response)
+	}
+}
+
+// ResetPassword 	godoc
+// @Summary 		Đặt lại mật khẩu
+// @Produce 		application/json
+// @Tags 			User
+// @Param 			request body request.ResetPasswordUserRequest true "Request Body"
+// @Success 		200 {object} response.ResetPasswordUserResponse
+// @Failure			400 {object} godoc.MessagesResponse
+// @Failure			500 {object} godoc.MessageResponse
+// @Router			/user/reset-password [post]
+func (handler *UserHandler) HandleResetPasswordUser() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		requestRaw, exists := context.Get(constant.ContextKey.REQUEST_DATA)
+		if !exists {
+			context.Error(errors.New("Không có dữ liệu request"))
+			context.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		request, ok := requestRaw.(*request.ResetPasswordUserRequest)
+		if !ok {
+			context.Error(errors.New("Không thể ép kiểu ResetPasswordUserRequest"))
+			context.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		response, customErr := handler.userService.ResetPasswordUser(context.Request.Context(), request)
 		if customErr != nil {
 			context.Error(errors.New(customErr.Message))
 			context.AbortWithStatus(customErr.StatusCode)

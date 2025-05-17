@@ -67,3 +67,15 @@ func (repository *OtpCodeRepositoryImpl) Update(context context.Context, otpCode
 		})
 	return result.Error
 }
+
+func (repository *OtpCodeRepositoryImpl) FindByResetToken(context context.Context, resetToken string) (*entity.OtpCodeEntity, error) {
+	var otpCodeModel model.OtpCodeModel
+	result := repository.database.
+		WithContext(context).
+		Where("reset_token = ?", resetToken).
+		First(&otpCodeModel)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return otpCodeModel.ToEntity(), nil
+}

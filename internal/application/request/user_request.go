@@ -19,7 +19,12 @@ type ForgotPasswordUserRequest struct {
 	Email string `json:"email" binding:"required,email"`
 }
 
-type VerifyOtpResetPasswordRequest struct {
+type VerifyOtpResetPasswordUserRequest struct {
 	Email   string `json:"email" binding:"required,email"`
 	OtpCode string `json:"otp_code" binding:"required"`
+}
+
+type ResetPasswordUserRequest struct {
+	ResetToken  string `json:"reset_token" binding:"required"`
+	NewPassword string `json:"new_password" binding:"required,min=6"`
 }

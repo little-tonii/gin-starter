@@ -51,7 +51,18 @@ definitions:
     - email
     - password
     type: object
-  request.VerifyOtpResetPasswordRequest:
+  request.ResetPasswordUserRequest:
+    properties:
+      new_password:
+        minLength: 6
+        type: string
+      reset_token:
+        type: string
+    required:
+    - new_password
+    - reset_token
+    type: object
+  request.VerifyOtpResetPasswordUserRequest:
     properties:
       email:
         type: string
@@ -88,7 +99,12 @@ definitions:
       message:
         type: string
     type: object
-  response.VerifyOtpResetPasswordRepsonse:
+  response.ResetPasswordUserResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  response.VerifyOtpResetPasswordUserRepsonse:
     properties:
       reset_token:
         type: string
@@ -254,6 +270,33 @@ paths:
       summary: Đăng ký
       tags:
       - User
+  /user/reset-password:
+    post:
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.ResetPasswordUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ResetPasswordUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/godoc.MessagesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/godoc.MessageResponse'
+      summary: Đặt lại mật khẩu
+      tags:
+      - User
   /user/verify-otp-reset-password:
     post:
       parameters:
@@ -262,14 +305,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/request.VerifyOtpResetPasswordRequest'
+          $ref: '#/definitions/request.VerifyOtpResetPasswordUserRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.VerifyOtpResetPasswordRepsonse'
+            $ref: '#/definitions/response.VerifyOtpResetPasswordUserRepsonse'
         "400":
           description: Bad Request
           schema:

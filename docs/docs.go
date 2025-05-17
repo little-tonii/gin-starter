@@ -260,6 +260,48 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/reset-password": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Đặt lại mật khẩu",
+                "parameters": [
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ResetPasswordUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResetPasswordUserResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/godoc.MessagesResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/godoc.MessageResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user/verify-otp-reset-password": {
             "post": {
                 "produces": [
@@ -276,7 +318,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.VerifyOtpResetPasswordRequest"
+                            "$ref": "#/definitions/request.VerifyOtpResetPasswordUserRequest"
                         }
                     }
                 ],
@@ -284,7 +326,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.VerifyOtpResetPasswordRepsonse"
+                            "$ref": "#/definitions/response.VerifyOtpResetPasswordUserRepsonse"
                         }
                     },
                     "400": {
@@ -381,7 +423,23 @@ const docTemplate = `{
                 }
             }
         },
-        "request.VerifyOtpResetPasswordRequest": {
+        "request.ResetPasswordUserRequest": {
+            "type": "object",
+            "required": [
+                "new_password",
+                "reset_token"
+            ],
+            "properties": {
+                "new_password": {
+                    "type": "string",
+                    "minLength": 6
+                },
+                "reset_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.VerifyOtpResetPasswordUserRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -439,7 +497,15 @@ const docTemplate = `{
                 }
             }
         },
-        "response.VerifyOtpResetPasswordRepsonse": {
+        "response.ResetPasswordUserResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.VerifyOtpResetPasswordUserRepsonse": {
             "type": "object",
             "properties": {
                 "reset_token": {

@@ -10,4 +10,5 @@ type OtpCodeRepository interface {
 	FindByUserIdAndCode(context context.Context, userId int64, code string) (*entity.OtpCodeEntity, error)
 	DeleteByUserId(context context.Context, userId int64) error
 	Update(context context.Context, otpCodeEntity *entity.OtpCodeEntity) error
+	FindByResetToken(context context.Context, resetToken string) (*entity.OtpCodeEntity, error)
 }
