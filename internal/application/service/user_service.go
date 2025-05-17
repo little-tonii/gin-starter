@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"crypto/rand"
 	"errors"
 	"gin-starter/internal/application/request"
 	"gin-starter/internal/application/response"
@@ -197,20 +196,16 @@ func (service *UserService) ForgotPasswordUser(context context.Context, request 
 			}
 		}
 	}
-	buffer := make([]byte, 8)
-	_, err = rand.Read(buffer)
+	code, err := utils.CreateOtpCode(8)
 	if err != nil {
 		return nil, &response.ErrorResponse{
 			Message:    err.Error(),
 			StatusCode: http.StatusInternalServerError,
 		}
 	}
-	for i := range 8 {
-		buffer[i] = (buffer[i] % 10) + '0'
-	}
 	otpCodeEntity := &entity.OtpCodeEntity{
 		UserId:    userEntity.Id,
-		Code:      string(buffer),
+		Code:      code,
 		ExpiredAt: time.Now().Add(5 * time.Minute),
 	}
 	err = service.otpCodeRepository.Save(context, otpCodeEntity)
