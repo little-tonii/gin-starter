@@ -9,7 +9,8 @@ import (
 )
 
 type Locator struct {
-	UserRepository repository.UserRepository
+	UserRepository    repository.UserRepository
+	OtpCodeRepository repository.OtpCodeRepository
 
 	UserService *service.UserService
 
@@ -21,8 +22,9 @@ func InitLocator() *Locator {
 	redisClient := config.GetRedisClient()
 
 	userRepository := repository_impl.NewUserRepositoryImpl(database)
+	otpCodeRepository := repository_impl.NewOtpCodeRepositoryImpl(database)
 
-	userService := service.NewUserService(userRepository)
+	userService := service.NewUserService(userRepository, otpCodeRepository)
 
 	userHandler := handler.NewUserHandler(redisClient, userService)
 

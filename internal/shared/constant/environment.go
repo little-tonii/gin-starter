@@ -21,6 +21,10 @@ type environment struct {
 	REDIS_CACHING_PORT     int
 	REDIS_CACHING_PASSWORD string
 	REDIS_CACHING_DB       int
+	SMTP_SERVER            string
+	SMTP_PORT              int
+	SMTP_USERNAME          string
+	SMTP_PASSWORD          string
 }
 
 var Environment *environment
@@ -101,6 +105,26 @@ func LoadEnvironment() []error {
 	if err != nil {
 		errorList = append(errorList, errors.New("REDIS_CACHING_DB không hợp lệ"))
 	}
+	smtpServer, exists := os.LookupEnv("SMTP_SERVER")
+	if !exists {
+		errorList = append(errorList, errors.New("Biến môi trường SMTP_SERVER chưa được thiết lập"))
+	}
+	smtpPortStr, exists := os.LookupEnv("SMTP_PORT")
+	if !exists {
+		errorList = append(errorList, errors.New("Biến môi trường SMTP_PORT chưa được thiết lập"))
+	}
+	smtpPort, err := strconv.Atoi(smtpPortStr)
+	if err != nil {
+		errorList = append(errorList, errors.New("SMTP_PORT không hợp lệ"))
+	}
+	smtpUsername, exists := os.LookupEnv("SMTP_USERNAME")
+	if !exists {
+		errorList = append(errorList, errors.New("Biến môi trường SMTP_USERNAME chưa được thiết lập"))
+	}
+	smtpPassword, exists := os.LookupEnv("SMTP_PASSWORD")
+	if !exists {
+		errorList = append(errorList, errors.New("Biến môi trường SMTP_PASSWORD chưa được thiết lập"))
+	}
 	Environment = &environment{
 		POSTGRES_HOST:          databaseHost,
 		POSTGRES_PORT:          databasePort,
@@ -114,6 +138,10 @@ func LoadEnvironment() []error {
 		REDIS_CACHING_PORT:     redisCachingPort,
 		REDIS_CACHING_PASSWORD: redisCachingPassword,
 		REDIS_CACHING_DB:       redisCachingDB,
+		SMTP_SERVER:            smtpServer,
+		SMTP_PORT:              smtpPort,
+		SMTP_USERNAME:          smtpUsername,
+		SMTP_PASSWORD:          smtpPassword,
 	}
 	return errorList
 }

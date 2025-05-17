@@ -2,25 +2,30 @@ package service
 
 import (
 	"context"
+	"crypto/rand"
 	"errors"
 	"gin-starter/internal/application/request"
 	"gin-starter/internal/application/response"
+	"gin-starter/internal/application/routine"
 	"gin-starter/internal/domain/entity"
 	"gin-starter/internal/domain/repository"
 	"gin-starter/internal/shared/constant"
 	"gin-starter/internal/shared/utils"
 	"net/http"
+	"time"
 
 	"gorm.io/gorm"
 )
 
 type UserService struct {
-	userRepository repository.UserRepository
+	userRepository    repository.UserRepository
+	otpCodeRepository repository.OtpCodeRepository
 }
 
-func NewUserService(userRepository repository.UserRepository) *UserService {
+func NewUserService(userRepository repository.UserRepository, otpCodeRepository repository.OtpCodeRepository) *UserService {
 	return &UserService{
-		userRepository: userRepository,
+		userRepository:    userRepository,
+		otpCodeRepository: otpCodeRepository,
 	}
 }
 
@@ -118,7 +123,7 @@ func (service *UserService) ProfileUser(context context.Context, claims *utils.C
 			}
 		}
 	}
-	if claims.TokenVersion < userEntity.TokenVersion {
+	if claims.TokenVersion != userEntity.TokenVersion {
 		return nil, &response.ErrorResponse{
 			Message:    "Người dùng chưa đăng nhập",
 			StatusCode: http.StatusUnauthorized,
@@ -175,4 +180,51 @@ func (service *UserService) ChangePasswordUser(context context.Context, claims *
 	return &response.ChanagePasswordUserResponse{
 		Message: "Đổi mật khẩu thành công",
 	}, nil
+}
+
+func (service *UserService) ForgotPasswordUser(context context.Context, request *request.ForgotPasswordUserRequest) (*response.ForgotPasswordUserResponse, *response.ErrorResponse) {
+	userEntity, err := service.userRepository.FindByEmail(context, request.Email)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, &response.ErrorResponse{
+				Message:    "Người dùng không tồn tại",
+				StatusCode: http.StatusNotFound,
+			}
+		} else {
+			return nil, &response.ErrorResponse{
+				Message:    err.Error(),
+				StatusCode: http.StatusInternalServerError,
+			}
+		}
+	}
+	buffer := make([]byte, 8)
+	_, err = rand.Read(buffer)
+	if err != nil {
+		return nil, &response.ErrorResponse{
+			Message:    err.Error(),
+			StatusCode: http.StatusInternalServerError,
+		}
+	}
+	for i := range 8 {
+		buffer[i] = (buffer[i] % 10) + '0'
+	}
+	otpCodeEntity := &entity.OtpCodeEntity{
+		UserId:    userEntity.Id,
+		Code:      string(buffer),
+		ExpiredAt: time.Now().Add(5 * time.Minute),
+	}
+	err = service.otpCodeRepository.Save(context, otpCodeEntity)
+	if err != nil {
+		return nil, &response.ErrorResponse{
+			Message:    err.Error(),
+			StatusCode: http.StatusInternalServerError,
+		}
+	}
+	go routine.SendOtpCodeToEmail(
+		"Gin Starter",
+		userEntity.Email,
+		"Quên mật khẩu",
+		otpCodeEntity.Code,
+	)
+	return &response.ForgotPasswordUserResponse{Message: "OTP đã được gửi đến email của bạn"}, nil
 }

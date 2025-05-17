@@ -51,7 +51,7 @@ func InitializeDatabase() error {
 		sqlDatabase.SetMaxOpenConns(20)
 		sqlDatabase.SetConnMaxLifetime(10 * time.Minute)
 
-		if err := connection.AutoMigrate(&model.UserModel{}); err != nil {
+		if err := connection.AutoMigrate(&model.UserModel{}, &model.OtpCodeModel{}); err != nil {
 			error = err
 			return
 		}

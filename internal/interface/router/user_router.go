@@ -21,6 +21,11 @@ func InitUserRouter(engine *gin.Engine, handler *handler.UserHandler) {
 			middleware.BindingValidator[request.LoginUserRequest](),
 			handler.HandleLoginUser(),
 		)
+		group.POST(
+			"/forgot-password",
+			middleware.BindingValidator[request.ForgotPasswordUserRequest](),
+			handler.HandleForgotPasswordUser(),
+		)
 	}
 
 	authGroup := group.Group("", middleware.Authentication())

@@ -192,3 +192,37 @@ func (handler *UserHandler) HandleChangePasswordUser() gin.HandlerFunc {
 		context.JSON(http.StatusOK, response)
 	}
 }
+
+// ForgotPassword 	godoc
+// @Summary 		Quên mật khẩu
+// @Produce 		application/json
+// @Tags 			User
+// @Param 			request body request.ForgotPasswordUserRequest true "Request Body"
+// @Success 		200 {object} response.ForgotPasswordUserResponse
+// @Failure			400 {object} godoc.MessagesResponse
+// @Failure			404 {object} godoc.MessageResponse
+// @Failure			500 {object} godoc.MessageResponse
+// @Router			/user/forgot-password [post]
+func (handler *UserHandler) HandleForgotPasswordUser() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		requestRaw, exists := context.Get(constant.ContextKey.REQUEST_DATA)
+		if !exists {
+			context.Error(errors.New("Không có dữ liệu request"))
+			context.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		request, ok := requestRaw.(*request.ForgotPasswordUserRequest)
+		if !ok {
+			context.Error(errors.New("Không thể ép kiểu ForgotPasswordUserRequest"))
+			context.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		response, customErr := handler.userService.ForgotPasswordUser(context.Request.Context(), request)
+		if customErr != nil {
+			context.Error(errors.New(customErr.Message))
+			context.AbortWithStatus(customErr.StatusCode)
+			return
+		}
+		context.JSON(http.StatusOK, response)
+	}
+}

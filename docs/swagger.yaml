@@ -15,9 +15,20 @@ definitions:
   request.ChangePasswordUserRequest:
     properties:
       new_password:
+        minLength: 6
         type: string
       old_password:
         type: string
+    required:
+    - new_password
+    - old_password
+    type: object
+  request.ForgotPasswordUserRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
     type: object
   request.LoginUserRequest:
     properties:
@@ -41,6 +52,11 @@ definitions:
     - password
     type: object
   response.ChanagePasswordUserResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  response.ForgotPasswordUserResponse:
     properties:
       message:
         type: string
@@ -101,6 +117,37 @@ paths:
       - BearerAuth: []
       - OAuth2Password: []
       summary: Đổi mật khẩu
+      tags:
+      - User
+  /user/forgot-password:
+    post:
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.ForgotPasswordUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ForgotPasswordUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/godoc.MessagesResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/godoc.MessageResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/godoc.MessageResponse'
+      summary: Quên mật khẩu
       tags:
       - User
   /user/login:

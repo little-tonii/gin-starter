@@ -16,3 +16,7 @@ type ProfileUserResponse struct {
 type ChanagePasswordUserResponse struct {
 	Message string `json:"message"`
 }
+
+type ForgotPasswordUserResponse struct {
+	Message string `json:"message"`
+}
