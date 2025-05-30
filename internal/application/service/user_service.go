@@ -151,7 +151,7 @@ func (service *UserService) ChangePasswordUser(ctx context.Context, claims *util
 			}
 		}
 	}
-	if claims.TokenVersion < userEntity.TokenVersion {
+	if claims.TokenVersion != userEntity.TokenVersion {
 		return nil, &response.ErrorResponse{
 			Message:    "Người dùng chưa đăng nhập",
 			StatusCode: http.StatusUnauthorized,
